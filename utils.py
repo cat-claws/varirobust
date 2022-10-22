@@ -13,8 +13,8 @@ transform=transforms.Compose([
     transforms.Normalize(0, 1)
     ])
 
-trainset = datasets.MNIST('/mnt/Dataset', train=True, download=True, transform=transform)
-valset = datasets.MNIST('/mnt/Dataset', train=False, transform=transform)
+trainset = datasets.MNIST('Dataset', train=True, download=True, transform=transform)
+valset = datasets.MNIST('Dataset', train=False, transform=transform)
 
 def train_model(model, loss_fn, batchSize, trainset, valset, optimizer, num_epochs):
   
@@ -208,7 +208,7 @@ class DeltaEnsemble(torch.nn.Module):
             outputs = []
             for k in range(n_neighb):
                 grad = torch.randn_like(x)
-                adv_images = x + self.eps * grad.sign()
+                adv_images = x + grad #self.eps * grad.sign()
                 adv_images = torch.clamp(adv_images, min=0, max=1)
                 outputs.append(self.m(adv_images))
             return sum(outputs) / n_neighb
