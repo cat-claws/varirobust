@@ -37,7 +37,7 @@ def train_model(model, loss_fn, batchSize, trainset, valset, optimizer, num_epoc
 
     # GPU enabling.
     model = model.cuda()
-    loss_fn = loss_fn.cuda()
+    # loss_fn = loss_fn.cuda()
 
 
     # Training loop. Please make sure you understand every single line of code below.
@@ -124,7 +124,8 @@ def attack_model(model, loss_fn, batchSize, valset, num_epochs):
 
     # GPU enabling.
     model = model.cuda()
-    loss_fn = loss_fn.cuda()
+    # loss_fn = loss_fn.cuda()
+
 
 
     # Training loop. Please make sure you understand every single line of code below.
@@ -191,19 +192,23 @@ class Ensem(torch.nn.Module):
         return (self.m1(data).softmax(-1) + self.m2(data).softmax(-1))/2
 
 class DeltaEnsemble(torch.nn.Module):
-    def __init__(self, m, eps = 0.1):
+    def __init__(self, m, eps = 0.1, n_neighb = 0):
         super(DeltaEnsemble, self).__init__()
         self.m = m
         self.eps = eps
+        self.n_neighb = n_neighb
 
-    def forward(self, x, n_neighb = 0):
+    def forward(self, x, n_neighb = -1):
+        if n_neighb == -1:
+            n_neighb = self.n_neighb
+
         if n_neighb == 0:
             return self.m(x)
         else:
             outputs = []
-            for k in n_neighb:
-                grad = torch.rand_like(x)
+            for k in range(n_neighb):
+                grad = torch.randn_like(x)
                 adv_images = x + self.eps * grad.sign()
                 adv_images = torch.clamp(adv_images, min=0, max=1)
-                outputs.append(self.m(x))
+                outputs.append(self.m(adv_images))
             return sum(outputs) / n_neighb
