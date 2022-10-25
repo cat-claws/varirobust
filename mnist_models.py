@@ -150,40 +150,43 @@ class LeNet5(nn.Module):
 		return y
 	
 class CNN(nn.Module):
-    def __init__(self, num_classes=10, conv_dims=[6, 16], fc_dims=[256, 120, 84]):
-        super().__init__()
+	def __init__(self, num_classes=10, conv_dims=[6, 16], fc_dims=[256, 120, 84]):
+		super().__init__()
 
-        convs, fcs = [], []
-        for i in range(len(conv_dims)):
-            in_dims = 1 if i == 0 else conv_dims[i - 1]
-            convs.append(
-                nn.Sequential(
-                    nn.Conv2d(in_dims, conv_dims[i], 5),
-                    nn.BatchNorm2d(conv_dims[i]),
-                    nn.ReLU(inplace=True),
-                    nn.MaxPool2d(2, stride=2)
-                )
-            )
+		convs, fcs = [], []
+		for i in range(len(conv_dims)):
+			in_dims = 1 if i == 0 else conv_dims[i - 1]
+			convs.append(
+				nn.Sequential(
+					nn.Conv2d(in_dims, conv_dims[i], 5),
+					nn.BatchNorm2d(conv_dims[i]),
+					nn.ReLU(inplace=True),
+					nn.MaxPool2d(2, stride=2)
+				)
+			)
 
-        for i in range(len(fc_dims) - 1):
-            fcs.append(
-                nn.Sequential(
-                    nn.Linear(fc_dims[i], fc_dims[i + 1]),
-                    nn.BatchNorm1d(fc_dims[i + 1]),
-                    nn.ReLU(inplace=True)
-                )
-            )
-        fcs.append(nn.Linear(fc_dims[-1], num_classes))
+		for i in range(len(fc_dims) - 1):
+			fcs.append(
+				nn.Sequential(
+					nn.Linear(fc_dims[i], fc_dims[i + 1]),
+					nn.BatchNorm1d(fc_dims[i + 1]),
+					nn.ReLU(inplace=True)
+				)
+			)
+		fcs.append(nn.Linear(fc_dims[-1], num_classes))
 
-        self.conv = nn.Sequential(*convs)
-        self.fc = nn.Sequential(*fcs)
-        self.softmax = nn.Softmax(dim=-1)
+		self.conv = nn.Sequential(*convs)
+		self.fc = nn.Sequential(*fcs)
+		self.softmax = nn.Softmax(dim=-1)
 
-    def forward(self, x):
-        x = self.conv(x)
-        x = x.view(x.shape[0], -1)
-        x = self.fc(x)
-        x = self.softmax(x)
+	def _feature(self, x):
+		x = self.conv(x)
+		return x.view(x.shape[0], -1)
 
-        return x
+	def forward(self, x):
+		x = self._feature(x)        
+		x = self.fc(x)
+		x = self.softmax(x)
+
+		return x
 	
