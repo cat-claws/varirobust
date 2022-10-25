@@ -200,25 +200,14 @@ def attack_model(model, loss_fn, batchSize, valset, num_epochs):
     
     return original_accuracy, original_losses, attacked_accuracy, attacked_losses, adv_images
 
-class Ensem(torch.nn.Module):
-
+class Ensemble(torch.nn.Module):
     def __init__(self, m1, m2):
-        super(Ensem, self).__init__()
+        super(Ensemble, self).__init__()
         self.m1 = m1
         self.m2 = m2
 
-    def forward(self, data):
-        return (self.m1(data).softmax(-1) + self.m2(data).softmax(-1))/2
-
-def get_heat_map(x, model):
-    x1 = x.clone().detach()
-    x1.requires_grad = True
-    model.eval()
-    d1 = model(x1)
-    d2 = torch.rand_like(d1).uniform_(-100, 100).softmax(-1)
-    loss = F.kl_div(d1.log(), d2)
-    loss.backward()
-    return x1.grad
+    def forward(self, x):
+        return (self.m1(x) + self.m2(x))/2
 
 class DeltaEnsemble(torch.nn.Module):
     def __init__(self, m, eps = 0.1, n_neighb = 0):
@@ -238,7 +227,7 @@ class DeltaEnsemble(torch.nn.Module):
             all_inputs.append(x2)
         return torch.stack(all_inputs)
 
-    def _cam(self, x):
+    def _cam_z(self, x):
         x_ = x.clone().detach()
         x_.requires_grad = True
         z_ = self.m._feature(x_)
@@ -246,10 +235,19 @@ class DeltaEnsemble(torch.nn.Module):
         z = z +  torch.randn_like(z).normal_(std = z.std() / 10)
         loss_z = F.mse_loss(z_, z)
         loss_z.backward()
-        return x_.grad 
+        return x_.grad
 
-    def _get_neighb_with_grad(self, x, n_neighb):
-        cam_abs = self._cam(x).abs()
+    def _cam(self, x):
+        x_ = x.clone().detach()
+        x_.requires_grad = True
+        d_ = self.m(x_)
+        d = torch.rand_like(d_).uniform_(-100, 100).softmax(-1)
+        loss_d = F.kl_div(d_.log(), d)
+        loss_d.backward()
+        return x_.grad
+
+    def _get_neighb_with_cam(self, x, n_neighb):
+        cam_abs = self._cam_z(x).abs()
         cam_mask = cam_abs > np.percentile(cam_abs.cpu(), 75)
 
         x = x.unsqueeze(0)
