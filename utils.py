@@ -45,6 +45,21 @@ def uniform_perturb(x, eps = 0.1):
     delta = ub - lb
     return delta * grad + lb  
 
+import numpy as np
+
+def probabilistically_robust_learning(model, loss_fn, xs, labels, k = 100, rho = 0.1):
+    xs_k = xs.unsqueeze(0).repeat(k, 1, 1, 1, 1).view(k * xs.shape[0], *xs.shape[1:])
+    xs_k += torch.randn_like(xs_k)
+    labels_k = labels.unsqueeze(0).repeat(k, 1).view(k * labels.shape[0], *labels.shape[1:])
+
+    scores_k = model(xs_k)
+
+    losses = loss_fn(scores_k, labels_k)
+    alpha = np.quantile(losses.detach(), 1 - rho)
+
+    loss = F.threshold(losses, alpha, 0.).mean() / rho
+    return loss, scores_k.view(k, scores_k.shape[0] // k, *scores_k.shape[1:]).mean(0)
+
 def train_model(model, loss_fn, batchSize, trainset, valset, optimizer, num_epochs):
   
 
@@ -82,8 +97,10 @@ def train_model(model, loss_fn, batchSize, trainset, valset, optimizer, num_epoc
             labels = labels.cuda()
 
             # Forward pass. (Prediction stage)
-            scores = model(inputs + 0.6 * torch.randn_like(inputs))
-            loss = loss_fn(scores, labels)
+            # scores = model(inputs + 0.6 * torch.randn_like(inputs))
+            # loss = loss_fn(scores, labels)
+
+            loss, scores = probabilistically_robust_learning(model, loss_fn, inputs, labels)
 
             # Count how many correct in this batch.
             max_scores, max_labels = scores.max(1)
