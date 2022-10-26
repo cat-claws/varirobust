@@ -82,7 +82,7 @@ def train_model(model, loss_fn, batchSize, trainset, valset, optimizer, num_epoc
             labels = labels.cuda()
 
             # Forward pass. (Prediction stage)
-            scores = model(inputs + 0.2 * torch.randn_like(inputs))
+            scores = model(inputs + 0.6 * torch.randn_like(inputs))
             loss = loss_fn(scores, labels)
 
             # Count how many correct in this batch.
@@ -216,7 +216,7 @@ class DeltaEnsemble(torch.nn.Module):
         self.eps = eps
         self.n_neighb = n_neighb
 
-    def _get_neighb(self, x, n_neighb):
+    def _get_neighb_steep(self, x, n_neighb):
         all_inputs = [x]
         for k in range(n_neighb):
             grad = torch.sigmoid(torch.rand_like(x).uniform_(-200, 200))
@@ -237,7 +237,7 @@ class DeltaEnsemble(torch.nn.Module):
         loss_z.backward()
         return x_.grad
 
-    def _cam(self, x):
+    def _cam_d(self, x):
         x_ = x.clone().detach()
         x_.requires_grad = True
         d_ = self.m(x_)
@@ -247,7 +247,7 @@ class DeltaEnsemble(torch.nn.Module):
         return x_.grad
 
     def _get_neighb_with_cam(self, x, n_neighb):
-        cam_abs = self._cam_z(x).abs()
+        cam_abs = self._cam_d(x).abs()
         cam_mask = cam_abs > np.percentile(cam_abs.cpu(), 75)
 
         x = x.unsqueeze(0)
@@ -267,7 +267,7 @@ class DeltaEnsemble(torch.nn.Module):
         return x_
 
     def _predict_neighb(self, x, n_neighb):
-        all_inputs = self._get_neighb(x, n_neighb)
+        all_inputs = self._get_neighb_uniform(x, n_neighb)
         if (n_neighb + 1) * len(x) <= 10000:
             outputs = self.m(all_inputs.view((n_neighb + 1) * len(x), *x.shape[1:])).view((n_neighb + 1), len(x), -1)
         else:
