@@ -1,5 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('WebAgg') 
 
 original_accuracy = np.load('original_accuracy.npy')
 attacked_accuracy = np.load('attacked_accuracy.npy')

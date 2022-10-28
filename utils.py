@@ -55,7 +55,7 @@ def probabilistically_robust_learning(model, loss_fn, xs, labels, k = 100, rho =
     scores_k = model(xs_k)
 
     losses = loss_fn(scores_k, labels_k)
-    alpha = np.quantile(losses.detach(), 1 - rho)
+    alpha = np.quantile(losses.detach().cpu(), 1 - rho)
 
     loss = F.threshold(losses, alpha, 0.).mean() / rho
     return loss, scores_k.view(k, scores_k.shape[0] // k, *scores_k.shape[1:]).mean(0)
@@ -97,10 +97,10 @@ def train_model(model, loss_fn, batchSize, trainset, valset, optimizer, num_epoc
             labels = labels.cuda()
 
             # Forward pass. (Prediction stage)
-            # scores = model(inputs + 0.6 * torch.randn_like(inputs))
-            # loss = loss_fn(scores, labels)
+            scores = model(inputs + 0.6 * torch.randn_like(inputs))
+            loss = loss_fn(scores, labels)
 
-            loss, scores = probabilistically_robust_learning(model, loss_fn, inputs, labels)
+            # loss, scores = probabilistically_robust_learning(model, loss_fn, inputs, labels)
 
             # Count how many correct in this batch.
             max_scores, max_labels = scores.max(1)
@@ -163,12 +163,6 @@ def attack_model(model, loss_fn, batchSize, valset, num_epochs):
 
     # GPU enabling.
     model = model.cuda()
-    # loss_fn = loss_fn.cuda()
-
-
-
-    # Training loop. Please make sure you understand every single line of code below.
-    # Go back to some of the previous steps in this lab if necessary.
     original_correct = 0.0
     original_cum_loss = 0.0
 
@@ -177,6 +171,8 @@ def attack_model(model, loss_fn, batchSize, valset, num_epochs):
 
     # Make a pass over the training data.
     model.eval()
+    atk = torchattacks.PGD(model, eps=0.1, alpha=1/255, steps=num_epochs, random_start=False)
+    
     for (i, (inputs, labels)) in enumerate(val_loader):
         inputs = inputs.cuda()
         labels = labels.cuda()
@@ -192,7 +188,6 @@ def attack_model(model, loss_fn, batchSize, valset, num_epochs):
         
         
         # Attack the model using PGD
-        atk = torchattacks.PGD(model, eps=0.1, alpha=1/255, steps=num_epochs, random_start=False)
         adv_images = atk(inputs, labels)
 
         # Forward pass. (Prediction stage)
@@ -210,10 +205,10 @@ def attack_model(model, loss_fn, batchSize, valset, num_epochs):
         attacked_accuracy = attacked_correct / len(valset)
         attacked_losses = attacked_cum_loss / (i + 1)      
 
-    print('Before. Avg-Loss: %.4f, Accuracy: %.4f' % 
-            (original_cum_loss / (i + 1), original_correct / len(valset)))
-    print('After. Avg-Loss: %.4f, Accuracy: %.4f' % 
-            (attacked_cum_loss / (i + 1), attacked_correct / len(valset)))
+    # print('Before. Avg-Loss: %.4f, Accuracy: %.4f' % 
+    #         (original_cum_loss / (i + 1), original_correct / len(valset)))
+    # print('After. Avg-Loss: %.4f, Accuracy: %.4f' % 
+    #         (attacked_cum_loss / (i + 1), attacked_correct / len(valset)))
     
     return original_accuracy, original_losses, attacked_accuracy, attacked_losses, adv_images
 
@@ -283,12 +278,13 @@ class DeltaEnsemble(torch.nn.Module):
         x_ = torch.cat((x, x_), dim = 0)
         return x_
 
-    def _predict_neighb(self, x, n_neighb):
-        all_inputs = self._get_neighb_uniform(x, n_neighb)
-        if (n_neighb + 1) * len(x) <= 10000:
-            outputs = self.m(all_inputs.view((n_neighb + 1) * len(x), *x.shape[1:])).view((n_neighb + 1), len(x), -1)
-        else:
-            outputs = torch.stack([self.m(i) for i in all_inputs])
+    def _predict_neighb(self, x, n_neighb, batch_size = 10000):
+        num_inputs = (n_neighb + 1) * len(x)
+        all_inputs = self._get_neighb_uniform(x, n_neighb).view(num_inputs, *x.shape[1:])
+        outputs = []
+        for k in range(int(np.ceil(num_inputs / batch_size))):
+            outputs.append(self.m(all_inputs[k * batch_size: (k + 1) * batch_size]))
+        outputs = torch.cat(outputs, dim = 0).view((n_neighb + 1), len(x), -1)
         return outputs
 
     def forward(self, x, n_neighb = -1):
