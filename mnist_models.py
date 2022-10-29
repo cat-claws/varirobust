@@ -2,6 +2,39 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+class MNISTClassifier:
+	def __init__(self):
+		self.device = device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+	def training_step(self, batch, batch_idx):
+		x, y = batch
+		y_hat = self(x)
+		loss = F.cross_entropy(y_hat, y)
+		return loss
+
+	# def _shared_eval_step(self, batch, batch_idx):
+    #     x, y = batch
+    #     y_hat = self(x)
+    #     loss = F.cross_entropy(y_hat, y)
+    #     acc = accuracy(y_hat, y)
+	# 	# Forward pass. (Prediction stage)
+	# 	scores = model(inputs)
+	# 	cum_loss += loss_fn(scores, labels).item()
+
+	# 	# Count how many correct in this batch.
+	# 	max_scores, max_labels = scores.max(1)
+	# 	correct += (max_labels == labels).sum().item()
+    #     return loss, acc
+
+# def training_step(self, batch, batch_idx):
+#     x, y = batch
+#     y_hat = self.model(x)
+#     loss = F.cross_entropy(y_hat, y)
+
+#     # logs metrics for each training_step,
+#     # and the average across the epoch, to the progress bar and logger
+#     self.log("train_loss", loss, on_step=True, on_epoch=True, prog_bar=True, logger=True)
+#     return loss
+
 class TwoLayerNN(nn.Module):
 
 	def __init__(self):
