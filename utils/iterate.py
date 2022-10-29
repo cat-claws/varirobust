@@ -1,4 +1,3 @@
-from multiprocessing import reduction
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
@@ -6,6 +5,8 @@ from torch.nn import functional as F
 import numpy as np
 import torchattacks
 from torch.utils.tensorboard import SummaryWriter
+
+import metrics
 
 writer = SummaryWriter()
 
@@ -36,6 +37,21 @@ def mnist_rand_step(net, batch, batch_idx, device = torch.device('cuda' if torch
 	correct = (max_labels == labels).sum()
 	return {'loss':loss, 'correct':correct}
 
+
+def mnist_augmented_step(net, batch, batch_idx, device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')):
+	inputs, labels = batch
+	inputs, labels = inputs.to(device), labels.to(device)
+	
+	scores = net(inputs)
+	loss = F.nll_loss(torch.log(scores + 1e-9), labels, reduction = 'sum')
+
+	max_scores, max_labels = scores.max(1)
+	correct = (max_labels == labels).sum()
+
+	aug_acc, beta_quant_acc = metrics.augmented_accuracy(net, inputs, labels, eps = 0.1, n_samples = 100, beta = 0.1)
+	return {'loss':loss, 'correct':correct, 'quantile':beta_quant_acc, 'augmented':aug_acc}
+
+
 def mnist_attacked_step(net, attack, batch, batch_idx, device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')):
 	inputs, labels = batch
 	inputs, labels = inputs.to(device), labels.to(device)
@@ -47,7 +63,6 @@ def mnist_attacked_step(net, attack, batch, batch_idx, device = torch.device('cu
 	max_scores, max_labels = scores.max(1)
 	correct = (max_labels == labels).sum()
 	return {'loss':loss, 'correct':correct}
-
 
 
 
@@ -93,7 +108,7 @@ def validate(model, validation_step, device, val_set, batch_size, epoch, writer)
 		writer.add_scalar("Epoch-" + k + "/valid", v / len(val_set), epoch)
 
 
-def attack(model, validation_step, attacked_step, device, val_set, batch_size, writer, eps=0.1, alpha=1/255, steps=40, random_start=False):
+def attack(model, validation_step, attacked_step, device, val_set, batch_size, epoch, writer, eps=0.1, alpha=1/255, steps=40, random_start=False):
   
 	model.eval()
 	# We don't need to bach the validation set but let's do it anyway.
@@ -103,17 +118,17 @@ def attack(model, validation_step, attacked_step, device, val_set, batch_size, w
 
 	outputs = []
 	outputs_ = []
-	with torch.no_grad():
-		for batch_idx, batch in enumerate(val_loader):
+	for batch_idx, batch in enumerate(val_loader):
+		with torch.no_grad():
 			output = validation_step(model, batch, batch_idx, device)
 			outputs.append(output)
 
-			output_ = attacked_step(model, atk, batch, batch_idx, device)
-			outputs_.append(output)
+		output_ = attacked_step(model, atk, batch, batch_idx, device)
+		outputs_.append(output_)
 
 	outputs = {k: sum([dic[k] for dic in outputs]) for k in outputs[0]}
 	outputs_ = {k: sum([dic[k] for dic in outputs_]) for k in outputs_[0]}
 	for k, v in outputs.items():
-		print("Epoch-" + k + "/valid", v / len(val_set))
+		writer.add_scalar("Epoch-" + k + "/valid", v / len(val_set), epoch)
 	for k, v in outputs_.items():
-		print("Epoch-" + k + "/attack", v / len(val_set))
+		writer.add_scalar("Epoch-" + k + "/attack", v / len(val_set), epoch)

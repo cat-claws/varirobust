@@ -20,7 +20,7 @@ for epoch in range(100):
     )
 
     iterate.validate(m,
-        iterate.mnist_step,
+        iterate.mnist_augmented_step,
         device = 'cuda',
         val_set = experiment.val_set,
         batch_size = 1000,
@@ -28,12 +28,26 @@ for epoch in range(100):
         writer = writer
     )
 
+    iterate.attack(m,
+        iterate.mnist_step,
+        iterate.mnist_attacked_step,
+        device = 'cuda',
+        val_set = experiment.val_set,
+        batch_size = 1000,
+        epoch = epoch,
+        writer = writer,
+        eps=0.1,
+        alpha=1/255,
+        steps=40,
+        random_start=False
+    )
+
 # torch.save(m.state_dict(), "mnist_cnn.pt")
-
-
 print(m)
 writer.flush()
 writer.close()
+
+
 # utils.train_model(m, loss_fn, batchSize, experiment.train_set, experiment.val_set, optimizer, num_epochs)
 
 # print('baseline: ')
