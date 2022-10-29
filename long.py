@@ -1,23 +1,39 @@
+import torch
+import torch.nn.functional as F
+from torch.utils.tensorboard import SummaryWriter
+
 from utils import experiment, iterate
 from mnist_models import CNN
-import torch.nn.functional as F
-
-import torch
-from torch.utils.tensorboard import SummaryWriter
-writer = SummaryWriter()
 
 m = CNN()
+writer = SummaryWriter()
 
-iterate.train(m,
-    iterate.mnist_rand_step,
-    device = 'cpu',
-    train_set = experiment.train_set,
-    batch_size = 1000,
-    optimizer = torch.optim.Adam(m.parameters(), lr = 0.001),
-    epoch = 10,
-    writer = writer
-)
+for epoch in range(100):
+    m = iterate.train(m,
+        iterate.mnist_rand_step,
+        device = 'cuda',
+        train_set = experiment.train_set,
+        batch_size = 1000,
+        optimizer = torch.optim.Adam(m.parameters(), lr = 0.001),
+        epoch = epoch,
+        writer = writer
+    )
 
+    iterate.validate(m,
+        iterate.mnist_step,
+        device = 'cuda',
+        val_set = experiment.val_set,
+        batch_size = 1000,
+        epoch = epoch,
+        writer = writer
+    )
+
+# torch.save(m.state_dict(), "mnist_cnn.pt")
+
+
+print(m)
+writer.flush()
+writer.close()
 # utils.train_model(m, loss_fn, batchSize, experiment.train_set, experiment.val_set, optimizer, num_epochs)
 
 # print('baseline: ')
