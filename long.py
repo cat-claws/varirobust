@@ -10,7 +10,7 @@ from mnist_models import CNN
 m = CNN()
 writer = SummaryWriter()
 
-for epoch in range(1000):
+for epoch in range(10):
     m = iterate.train(m,
         iterate.mnist_rand_step,
         device = 'cuda',
@@ -21,29 +21,29 @@ for epoch in range(1000):
         writer = writer
     )
 
-    iterate.validate(m,
-        iterate.mnist_augmented_step,
-        device = 'cuda',
-        val_set = experiment.val_set,
-        batch_size = 1000,
-        epoch = epoch,
-        writer = writer
-    )
+    # iterate.validate(m,
+    #     iterate.mnist_augmented_step,
+    #     device = 'cuda',
+    #     val_set = experiment.val_set,
+    #     batch_size = 1000,
+    #     epoch = epoch,
+    #     writer = writer
+    # )
 
-    iterate.attack(m,
-        iterate.mnist_step,
-        iterate.mnist_attacked_step,
-        device = 'cuda',
-        val_set = experiment.val_set,
-        batch_size = 1000,
-        epoch = epoch,
-        writer = writer,
-        torchattack=torchattacks.PGD,
-        eps=0.1,
-        alpha=1/255,
-        steps=40,
-        random_start=False
-    )
+    # iterate.attack(m,
+    #     iterate.mnist_step,
+    #     iterate.mnist_attacked_step,
+    #     device = 'cuda',
+    #     val_set = experiment.val_set,
+    #     batch_size = 1000,
+    #     epoch = epoch,
+    #     writer = writer,
+    #     torchattack=torchattacks.PGD,
+    #     eps=0.1,
+    #     alpha=1/255,
+    #     steps=40,
+    #     random_start=False
+    # )
 
     # iterate.attack(m,
     #     iterate.mnist_step,
@@ -60,8 +60,16 @@ for epoch in range(1000):
     #     random_start=True
     # )
 
+outputs = iterate.predict(m,
+        iterate.mnist_delta_predict_step,
+        device = 'cuda',
+        val_set = experiment.val_set,
+        batch_size = 1000
+)
+
 # torch.save(m.state_dict(), "mnist_cnn.pt")
 print(m)
+print(outputs.keys(), outputs['predictions'])
 writer.flush()
 writer.close()
 

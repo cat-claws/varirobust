@@ -71,17 +71,50 @@ def mnist_predict_step(net, batch, batch_idx, device = torch.device('cuda' if to
 	max_scores, max_labels = scores.max(1)
 	return {'predictions':max_labels}
 
-def mnist_delta_predict_step(net, batch, batch_idx, device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')):
+def mnist_delta_predict_step_linf(net, batch, batch_idx, device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')):
 	inputs, labels = batch
 	inputs, labels = inputs.to(device), labels.to(device)
-	for iter in range(5):
-	M = 20
-	inputs_, labels_ = inputs.repeat(M, 1, 1, 1) + labels.repeat(M)
-	scores_ = net(inputs_)
-	_, max_labels_ = scores_.max(1)
-	correct_ = (max_labels_ == labels_).view(M, -1)
+	M = 200
+	eps = torch.ones_like(labels) * 0.5
 
-	return {'loss':loss, 'correct':correct}
+	for _ in range(50):
+		inputs_, labels_ = inputs.repeat(M, 1, 1, 1), labels.repeat(M)
+		eps_ = eps.view(-1, 1, 1, 1).repeat(M, *inputs_.shape[1:])
+		inputs_ = torch.clamp(inputs_ + 2 * eps_ * torch.rand_like(inputs_) - eps_, 0, 1.)
+
+		scores_ = net(inputs_)
+		_, max_labels_ = scores_.max(1)
+		correct_ = (max_labels_ == labels_).view(M, -1).float().mean(dim = 0)
+		eps += (correct_ - 0.5) * ((correct_ < 0.5).float() * 30 + 1)
+		eps = torch.clamp(eps, 0, 1)
+
+	return {'predictions':eps, 'correct':correct_, 'samples':inputs_}
+
+def mnist_delta_predict_step_l2(net, batch, batch_idx, device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')):
+	inputs, labels = batch
+	inputs, labels = inputs.to(device), labels.to(device)
+	M = 200
+	eps = torch.zeros_like(labels).float()
+
+	for _ in range(50):
+		inputs_, labels_ = inputs.repeat(M, 1, 1, 1), labels.repeat(M)
+		eps_ = eps.view(-1, 1, 1, 1).repeat(M, *inputs_.shape[1:])
+
+		grad = torch.randn_like(inputs_)
+		grad_norms = torch.norm(grad.view(inputs_.shape[0], -1), p=2, dim=1) + 1e-7
+		grad = grad / grad_norms.view(inputs_.shape[0], 1, 1, 1)
+
+		factor = torch.rand_like(grad) ** (1 / torch.numel(grad[0]))
+		delta = eps_ * grad * factor
+		inputs_ = torch.clamp(inputs_ + delta, min=0, max=1)
+
+		scores_ = net(inputs_)
+		_, max_labels_ = scores_.max(1)
+		correct_ = (max_labels_ == labels_).view(M, -1).float().mean(dim = 0)
+		eps += (correct_ - 0.5) * ((correct_ < 0.5).float() * 30 + 1)
+		eps = torch.clamp(eps, 0, 20)
+
+	return {'predictions':eps, 'correct':correct_, 'samples':inputs_}
 
 def train(model, training_step, device, train_set, batch_size, optimizer, epoch, writer):
 	model = model.to(device)
