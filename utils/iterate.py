@@ -3,7 +3,6 @@ import torch.nn as nn
 from torch.nn import functional as F
 
 import numpy as np
-import torchattacks
 from torch.utils.tensorboard import SummaryWriter
 
 import metrics
@@ -30,7 +29,7 @@ def mnist_step(net, batch, batch_idx, device = torch.device('cuda' if torch.cuda
 def mnist_rand_step(net, batch, batch_idx, device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')):
 	inputs, labels = batch
 	inputs, labels = inputs.to(device), labels.to(device)
-	scores = net(inputs + 0.6 * torch.randn_like(inputs)) # add gaussian noise
+	scores = net(inputs + 0.7 * torch.randn_like(inputs)) # add gaussian noise
 	loss = F.nll_loss(torch.log(scores + 1e-9), labels, reduction = 'sum')
 
 	max_scores, max_labels = scores.max(1)
@@ -64,7 +63,25 @@ def mnist_attacked_step(net, attack, batch, batch_idx, device = torch.device('cu
 	correct = (max_labels == labels).sum()
 	return {'loss':loss, 'correct':correct}
 
+def mnist_predict_step(net, batch, batch_idx, device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')):
+	inputs, _ = batch
+	inputs = inputs.to(device)
+	scores = net(inputs)
 
+	max_scores, max_labels = scores.max(1)
+	return {'predictions':max_labels}
+
+def mnist_delta_predict_step(net, batch, batch_idx, device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')):
+	inputs, labels = batch
+	inputs, labels = inputs.to(device), labels.to(device)
+	for iter in range(5):
+	M = 20
+	inputs_, labels_ = inputs.repeat(M, 1, 1, 1) + labels.repeat(M)
+	scores_ = net(inputs_)
+	_, max_labels_ = scores_.max(1)
+	correct_ = (max_labels_ == labels_).view(M, -1)
+
+	return {'loss':loss, 'correct':correct}
 
 def train(model, training_step, device, train_set, batch_size, optimizer, epoch, writer):
 	model = model.to(device)
@@ -108,13 +125,13 @@ def validate(model, validation_step, device, val_set, batch_size, epoch, writer)
 		writer.add_scalar("Epoch-" + k + "/valid", v / len(val_set), epoch)
 
 
-def attack(model, validation_step, attacked_step, device, val_set, batch_size, epoch, writer, eps=0.1, alpha=1/255, steps=40, random_start=False):
+def attack(model, validation_step, attacked_step, device, val_set, batch_size, epoch, writer, torchattack, eps=0.1, alpha=1/255, steps=40, random_start=False):
   
 	model.eval()
 	# We don't need to bach the validation set but let's do it anyway.
 	val_loader = torch.utils.data.DataLoader(dataset = val_set, batch_size = batch_size, shuffle = False) # No need.
 
-	atk = torchattacks.PGD(model, eps=eps, alpha=alpha, steps=steps, random_start=random_start)
+	atk = torchattack(model, eps=eps, alpha=alpha, steps=steps, random_start=random_start)
 
 	outputs = []
 	outputs_ = []
@@ -132,3 +149,21 @@ def attack(model, validation_step, attacked_step, device, val_set, batch_size, e
 		writer.add_scalar("Epoch-" + k + "/valid", v / len(val_set), epoch)
 	for k, v in outputs_.items():
 		writer.add_scalar("Epoch-" + k + "/attack", v / len(val_set), epoch)
+
+def predict(model, predict_step, device, val_set, batch_size, epoch=None, writer=None):
+	model.eval()
+	# We don't need to bach the validation set but let's do it anyway.
+	val_loader = torch.utils.data.DataLoader(dataset = val_set, batch_size = batch_size, shuffle = False) # No need.
+
+	outputs = []
+	with torch.no_grad():
+		for batch_idx, batch in enumerate(val_loader):
+			output = predict_step(model, batch, batch_idx, device)
+			outputs.append(output)
+	# 		for k, v in output.items():
+	# 			writer.add_scalar("Step-" + k + "-valid", v / batch_size, epoch * len(val_loader) + batch_idx)
+
+	outputs = {k: torch.cat([dic[k] for dic in outputs], dim = 0) for k in outputs[0]} # array outputs
+	# for k, v in outputs.items():
+	# 	writer.add_scalar("Epoch-" + k + "/valid", v / len(val_set), epoch)
+	return outputs
