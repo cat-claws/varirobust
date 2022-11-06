@@ -10,12 +10,12 @@ from mnist_models import ConvNet
 m = ConvNet()
 m = m.to('cuda' if torch.cuda.is_available() else 'cpu')
 
-ckpt = 'checkpoints/ConvNet.pt'
-# ckpt = 'checkpoints/ConvNet_TRADES.pt'
+# ckpt = 'checkpoints/ConvNet.pt'
+ckpt = 'checkpoints/ConvNet_TRADES.pt'
 # ckpt = 'checkpoints/ConvNet_CVaR.pt'
 
 writer = SummaryWriter(comment=ckpt)
-m.load_state_dict(torch.load(ckpt))
+m.load_state_dict({k:torch.load(ckpt)[k] for k in m.state_dict()})
 
 
 iterate.attack(m,
@@ -52,7 +52,7 @@ for i, n_neighb in enumerate(ns_neighb):
             iterate.mnist_attacked_step,
             device = 'cuda',
             val_set = experiment.val_set,
-            batch_size = 1000,
+            batch_size = 500,
             epoch = 1,
             writer = writer,
             torchattack=torchattacks.PGD,

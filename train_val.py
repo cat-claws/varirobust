@@ -8,7 +8,7 @@ from utils import experiment, iterate
 from mnist_models import ConvNet
 
 m = ConvNet()
-writer = SummaryWriter()
+writer = SummaryWriter(comment=m._get_name() + '_train_val')
 
 for epoch in range(100):
     m = iterate.train(m,

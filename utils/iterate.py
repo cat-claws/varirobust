@@ -176,8 +176,8 @@ def attack(model, validation_step, attacked_step, device, val_set, batch_size, e
 		output_ = attacked_step(model, atk, batch, batch_idx, device)
 		outputs_.append(output_)
 
-	outputs = {k: sum([dic[k] for dic in outputs]) for k in outputs[0]}
-	outputs_ = {k: sum([dic[k] for dic in outputs_]) for k in outputs_[0]}
+	outputs = {k: sum([dic[k] for dic in outputs]).item() for k in outputs[0]}
+	outputs_ = {k: sum([dic[k] for dic in outputs_]).item() for k in outputs_[0]}
 	for k, v in outputs.items():
 		writer.add_scalar("Epoch-" + k + "/valid", v / len(val_set), epoch)
 	for k, v in outputs_.items():
