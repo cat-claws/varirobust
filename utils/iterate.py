@@ -29,7 +29,7 @@ def mnist_step(net, batch, batch_idx, device = torch.device('cuda' if torch.cuda
 def mnist_rand_step(net, batch, batch_idx, device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')):
 	inputs, labels = batch
 	inputs, labels = inputs.to(device), labels.to(device)
-	scores = net(inputs + 0.7 * torch.randn_like(inputs)) # add gaussian noise
+	scores = net(inputs + 0.6 * torch.randn_like(inputs)) # add gaussian noise
 	loss = F.nll_loss(torch.log(scores + 1e-9), labels, reduction = 'sum')
 
 	max_scores, max_labels = scores.max(1)
@@ -182,6 +182,8 @@ def attack(model, validation_step, attacked_step, device, val_set, batch_size, e
 		writer.add_scalar("Epoch-" + k + "/valid", v / len(val_set), epoch)
 	for k, v in outputs_.items():
 		writer.add_scalar("Epoch-" + k + "/attack", v / len(val_set), epoch)
+
+	return outputs, outputs_
 
 def predict(model, predict_step, device, val_set, batch_size, epoch=None, writer=None):
 	model.eval()
