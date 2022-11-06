@@ -27,7 +27,7 @@ iterate.attack(m,
         epoch = 0,
         writer = writer,
         torchattack=torchattacks.PGD,
-        eps=0.1,
+        eps=0.3,
         alpha=1/255,
         steps=40,
         random_start=False
@@ -56,7 +56,7 @@ for i, n_neighb in enumerate(ns_neighb):
             epoch = 1,
             writer = writer,
             torchattack=torchattacks.PGD,
-            eps=0.1,
+            eps=0.3,
             alpha=1/255,
             steps=40,
             random_start=False

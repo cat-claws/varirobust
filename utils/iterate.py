@@ -198,7 +198,7 @@ def predict(model, predict_step, device, val_set, batch_size, epoch=None, writer
 	# 		for k, v in output.items():
 	# 			writer.add_scalar("Step-" + k + "-valid", v / batch_size, epoch * len(val_loader) + batch_idx)
 
-	outputs = {k: torch.cat([dic[k] for dic in outputs], dim = 0) for k in outputs[0]} # array outputs
+	outputs = {k: torch.cat([dic[k] for dic in outputs], dim = 0)..tolist() for k in outputs[0]} # array outputs
 	# for k, v in outputs.items():
 	# 	writer.add_scalar("Epoch-" + k + "/valid", v / len(val_set), epoch)
 	return outputs
