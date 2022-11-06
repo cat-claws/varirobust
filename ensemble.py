@@ -41,6 +41,7 @@ class DeltaEnsemble(torch.nn.Module):
         self.m = m
         self.eps = eps
         self.n_neighb = n_neighb
+        self.batch_size = 10000
 
     def _get_neighb_steep(self, x, n_neighb):
         all_inputs = [x]
@@ -92,7 +93,9 @@ class DeltaEnsemble(torch.nn.Module):
         x_ = torch.cat((x, x_), dim = 0)
         return x_
 
-    def _predict_neighb(self, x, n_neighb, batch_size = 10000):
+    def _predict_neighb(self, x, n_neighb, batch_size = -1):
+        if batch_size == -1:
+            batch_size = self.batch_size
         num_inputs = (n_neighb + 1) * len(x)
         all_inputs = self._get_neighb_uniform(x, n_neighb).view(num_inputs, *x.shape[1:])
         outputs = []
@@ -101,12 +104,14 @@ class DeltaEnsemble(torch.nn.Module):
         outputs = torch.cat(outputs, dim = 0).view((n_neighb + 1), len(x), -1)
         return outputs
 
-    def forward(self, x, n_neighb = -1):
+    def forward(self, x, n_neighb = -1, batch_size = -1):
         if n_neighb == -1:
             n_neighb = self.n_neighb
+        if batch_size == -1:
+            batch_size = self.batch_size
 
         if n_neighb == 0:
             return self.m(x)
         else:            
-            outputs = self._predict_neighb(x, n_neighb)
+            outputs = self._predict_neighb(x, n_neighb, batch_size)
             return sum(outputs) / n_neighb

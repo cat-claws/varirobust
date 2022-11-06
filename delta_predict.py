@@ -42,7 +42,7 @@ for ckpt in ['checkpoints/ConvNet.pt', 'checkpoints/ConvNet_TRADES.pt', 'checkpo
 
     for i, n_neighb in enumerate(ns_neighb):
         for j, eps in enumerate(epsilons):
-            m_ = DeltaEnsemble(m, n_neighb = n_neighb, eps = eps)
+            m_ = DeltaEnsemble(m, n_neighb = n_neighb, eps = eps, batch_size = 2000)
             m_.eval()
 
             outputs, outputs_ = iterate.attack(m_,
