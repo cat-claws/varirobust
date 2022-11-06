@@ -74,7 +74,7 @@ def mnist_predict_step(net, batch, batch_idx, device = torch.device('cuda' if to
 def mnist_delta_predict_step_linf(net, batch, batch_idx, device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')):
 	inputs, labels = batch
 	inputs, labels = inputs.to(device), labels.to(device)
-	M = 200
+	M = 20
 	eps = torch.ones_like(labels) * 0.5
 
 	for _ in range(50):
@@ -93,7 +93,7 @@ def mnist_delta_predict_step_linf(net, batch, batch_idx, device = torch.device('
 def mnist_delta_predict_step_l2(net, batch, batch_idx, device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')):
 	inputs, labels = batch
 	inputs, labels = inputs.to(device), labels.to(device)
-	M = 40
+	M = 20
 	eps = torch.zeros_like(labels).float()
 
 	for _ in range(50):
