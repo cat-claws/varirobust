@@ -10,8 +10,8 @@ from mnist_models import ConvNet
 m = ConvNet()
 m = m.to('cuda' if torch.cuda.is_available() else 'cpu')
 
-# ckpt = 'checkpoints/ConvNet.pt'
-ckpt = 'checkpoints/ConvNet_TRADES.pt'
+ckpt = 'checkpoints/ConvNet.pt'
+# ckpt = 'checkpoints/ConvNet_TRADES.pt'
 # ckpt = 'checkpoints/ConvNet_CVaR.pt'
 
 writer = SummaryWriter(comment=ckpt)
