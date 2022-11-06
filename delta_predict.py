@@ -10,7 +10,7 @@ from mnist_models import ConvNet
 m = ConvNet()
 m = m.to('cuda' if torch.cuda.is_available() else 'cpu')
 
-for ckpt in ['checkpoints/ConvNet.pt', 'checkpoints/ConvNet_TRADES.pt', 'checkpoints/ConvNet_CVaR.pt']:
+for ckpt in ['checkpoints/ConvNet_TRADES.pt', 'checkpoints/ConvNet.pt', 'checkpoints/ConvNet_CVaR.pt']:
 
     writer = SummaryWriter(comment=ckpt)
     m.load_state_dict({k:torch.load(ckpt)[k] for k in m.state_dict()})
@@ -26,8 +26,8 @@ for ckpt in ['checkpoints/ConvNet.pt', 'checkpoints/ConvNet_TRADES.pt', 'checkpo
             writer = writer,
             torchattack=torchattacks.PGD,
             eps=0.3,
-            alpha=1/255,
-            steps=40,
+            alpha=1e-3,
+            steps=400,
             random_start=False
         )
 
@@ -56,8 +56,8 @@ for ckpt in ['checkpoints/ConvNet.pt', 'checkpoints/ConvNet_TRADES.pt', 'checkpo
                 writer = writer,
                 torchattack=torchattacks.PGD,
                 eps=0.3,
-                alpha=1/255,
-                steps=40,
+                alpha=1e-3,
+                steps=400,
                 random_start=False
             )
 
@@ -65,7 +65,7 @@ for ckpt in ['checkpoints/ConvNet.pt', 'checkpoints/ConvNet_TRADES.pt', 'checkpo
             original_accuracy[i, j] = original_acc
             attacked_accuracy[i, j] = attacked_acc
 
-    writer.add_image('original accuracy', experiment.plot_to_image(experiment.plot_trend(original_accuracy, 'original accuracy', ns_neighb, epsilons, 'num of neighbours', 'size of delta')), 1)
-    writer.add_image('attacked accuracy', experiment.plot_to_image(experiment.plot_trend(attacked_accuracy, 'attacked accuracy', ns_neighb, epsilons, 'num of neighbours', 'size of delta')), 1)
+    writer.add_image('original accuracy', experiment.plot_to_image(experiment.plot_trend(original_accuracy, 'original accuracy', epsilons, ns_neighb, 'size of delta', 'num of neighbours')), 1)
+    writer.add_image('attacked accuracy', experiment.plot_to_image(experiment.plot_trend(attacked_accuracy, 'attacked accuracy', epsilons, ns_neighb, 'size of delta', 'num of neighbours')), 1)
     writer.flush()
     writer.close()
