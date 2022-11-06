@@ -10,7 +10,7 @@ from mnist_models import ConvNet
 m = ConvNet()
 writer = SummaryWriter()
 
-for epoch in range(2):
+for epoch in range(100):
     m = iterate.train(m,
         iterate.mnist_rand_step,
         device = 'cuda',
@@ -60,17 +60,17 @@ for epoch in range(2):
     #     random_start=True
     # )
 
+print(m)
 torch.save(m.state_dict(), "checkpoints/" + m._get_name() + ".pt")
 
-outputs = iterate.predict(m,
-        iterate.mnist_delta_predict_step_linf,
-        device = 'cuda',
-        val_set = experiment.val_set,
-        batch_size = 100
-)
+# outputs = iterate.predict(m,
+#         iterate.mnist_delta_predict_step_linf,
+#         device = 'cuda',
+#         val_set = experiment.val_set,
+#         batch_size = 100
+# )
 
-print(m)
-print(outputs.keys(), outputs['predictions'])
+# print(outputs.keys(), outputs['predictions'])
 writer.flush()
 writer.close()
 
