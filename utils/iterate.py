@@ -171,10 +171,10 @@ def attack(model, validation_step, attacked_step, device, val_set, batch_size, e
 	for batch_idx, batch in enumerate(val_loader):
 		with torch.no_grad():
 			output = validation_step(model, batch, batch_idx, device)
-			outputs.append(output)
+			outputs.append({k:v.detach().cpu() for k, v in output.items()})
 
 		output_ = attacked_step(model, atk, batch, batch_idx, device)
-		outputs_.append(output_)
+		outputs_.append({k:v.detach().cpu() for k, v in output_.items()})
 
 	outputs = {k: sum([dic[k] for dic in outputs]).item() for k in outputs[0]}
 	outputs_ = {k: sum([dic[k] for dic in outputs_]).item() for k in outputs_[0]}
@@ -194,7 +194,7 @@ def predict(model, predict_step, device, val_set, batch_size, epoch=None, writer
 	with torch.no_grad():
 		for batch_idx, batch in enumerate(val_loader):
 			output = predict_step(model, batch, batch_idx, device)
-			outputs.append(output)
+			outputs.append({k:v.detach().cpu() for k, v in output.items()})
 	# 		for k, v in output.items():
 	# 			writer.add_scalar("Step-" + k + "-valid", v / batch_size, epoch * len(val_loader) + batch_idx)
 
