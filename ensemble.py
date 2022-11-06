@@ -36,12 +36,12 @@ class Ensemble(torch.nn.Module):
         return (self.m1(x) + self.m2(x))/2
 
 class DeltaEnsemble(torch.nn.Module):
-    def __init__(self, m, eps = 0.1, n_neighb = 0):
+    def __init__(self, m, eps = 0.1, n_neighb = 0, batch_size = 10000):
         super(DeltaEnsemble, self).__init__()
         self.m = m
         self.eps = eps
         self.n_neighb = n_neighb
-        self.batch_size = 10000
+        self.batch_size = batch_size
 
     def _get_neighb_steep(self, x, n_neighb):
         all_inputs = [x]
