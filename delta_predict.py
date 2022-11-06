@@ -62,7 +62,7 @@ for i, n_neighb in enumerate(ns_neighb):
             random_start=False
         )
 
-        original_acc, attacked_acc = outputs['correct'].item() / len(experiment.val_set), outputs_['correct'].item() / len(experiment.val_set)
+        original_acc, attacked_acc = outputs['correct'] / len(experiment.val_set), outputs_['correct'] / len(experiment.val_set)
         original_accuracy[i, j] = original_acc
         attacked_accuracy[i, j] = attacked_acc
 
