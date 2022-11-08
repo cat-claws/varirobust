@@ -35,7 +35,7 @@ def plot_trend(mat, title, xticks, yticks, xlabel, ylabel):
     labels = np.around(mat.astype('float'), decimals=2)
 
     # Use white text if squares are dark; otherwise black.
-    threshold = yticks.max() / 2.
+    threshold = mat.max() / 2.
     for i, j in itertools.product(range(len(xticks)), range(len(yticks))):
         color = "white" if mat[i, j] > threshold else "black"
         plt.text(j, i, labels[i, j], horizontalalignment="center", color=color)
