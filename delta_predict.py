@@ -5,7 +5,7 @@ from torch.utils.tensorboard import SummaryWriter
 import torchattacks
 
 from utils import experiment, iterate
-from mnist_models import ConvNet
+from nets.mnist import ConvNet
 
 m = ConvNet()
 m = m.to('cuda' if torch.cuda.is_available() else 'cpu')
@@ -26,7 +26,7 @@ for ckpt in ['checkpoints/ConvNet_TRADES.pt', 'checkpoints/ConvNet.pt', 'checkpo
             writer = writer,
             torchattack=torchattacks.PGD,
             eps=0.3,
-            alpha=1e-3,
+            alpha=1/255,
             steps=400,
             random_start=False
         )
@@ -56,7 +56,7 @@ for ckpt in ['checkpoints/ConvNet_TRADES.pt', 'checkpoints/ConvNet.pt', 'checkpo
                 writer = writer,
                 torchattack=torchattacks.PGD,
                 eps=0.3,
-                alpha=1e-3,
+                alpha=1/255,
                 steps=400,
                 random_start=False
             )
@@ -65,7 +65,7 @@ for ckpt in ['checkpoints/ConvNet_TRADES.pt', 'checkpoints/ConvNet.pt', 'checkpo
             original_accuracy[i, j] = original_acc
             attacked_accuracy[i, j] = attacked_acc
 
-    writer.add_image('original accuracy', experiment.plot_to_image(experiment.plot_trend(original_accuracy, 'original accuracy', epsilons, ns_neighb, 'size of delta', 'num of neighbours')), 1)
-    writer.add_image('attacked accuracy', experiment.plot_to_image(experiment.plot_trend(attacked_accuracy, 'attacked accuracy', epsilons, ns_neighb, 'size of delta', 'num of neighbours')), 1)
+    writer.add_image('original accuracy', experiment.plot_to_image(experiment.plot_trend(original_accuracy, 'original accuracy', ns_neighb, epsilons, 'num of neighbours', 'size of delta')), 1)
+    writer.add_image('attacked accuracy', experiment.plot_to_image(experiment.plot_trend(attacked_accuracy, 'attacked accuracy', ns_neighb, epsilons, 'num of neighbours', 'size of delta')), 1)
     writer.flush()
     writer.close()
