@@ -120,7 +120,7 @@ def train(model, training_step, device, train_set, batch_size, optimizer, epoch,
 	model = model.to(device)
 	model.train()
 	# Shuffling is needed in case dataset is not shuffled by default.
-	train_loader = torch.utils.data.DataLoader(dataset = train_set, batch_size = batch_size, shuffle = True)
+	train_loader = torch.utils.data.DataLoader(dataset = train_set, batch_size = batch_size, num_workers = 4, shuffle = True)
 
 	outputs = []
 	for batch_idx, batch in enumerate(train_loader):
@@ -143,7 +143,7 @@ def train(model, training_step, device, train_set, batch_size, optimizer, epoch,
 def validate(model, validation_step, device, val_set, batch_size, epoch, writer):
 	model.eval()
 	# We don't need to bach the validation set but let's do it anyway.
-	val_loader = torch.utils.data.DataLoader(dataset = val_set, batch_size = batch_size, shuffle = False) # No need.
+	val_loader = torch.utils.data.DataLoader(dataset = val_set, batch_size = batch_size, num_workers = 4, shuffle = False) # No need.
 
 	outputs = []
 	with torch.no_grad():
@@ -162,7 +162,7 @@ def attack(model, validation_step, attacked_step, device, val_set, batch_size, e
   
 	model.eval()
 	# We don't need to bach the validation set but let's do it anyway.
-	val_loader = torch.utils.data.DataLoader(dataset = val_set, batch_size = batch_size, shuffle = False) # No need.
+	val_loader = torch.utils.data.DataLoader(dataset = val_set, batch_size = batch_size, num_workers = 4, shuffle = False) # No need.
 
 	atk = torchattack(model, eps=eps, alpha=alpha, steps=steps, random_start=random_start)
 
@@ -188,7 +188,7 @@ def attack(model, validation_step, attacked_step, device, val_set, batch_size, e
 def predict(model, predict_step, device, val_set, batch_size, epoch=None, writer=None):
 	model.eval()
 	# We don't need to bach the validation set but let's do it anyway.
-	val_loader = torch.utils.data.DataLoader(dataset = val_set, batch_size = batch_size, shuffle = False) # No need.
+	val_loader = torch.utils.data.DataLoader(dataset = val_set, batch_size = batch_size, num_workers = 4, shuffle = False) # No need.
 
 	outputs = []
 	with torch.no_grad():
