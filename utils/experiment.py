@@ -32,7 +32,7 @@ def plot_trend(mat, title, xticks, yticks, xlabel, ylabel):
     plt.yticks(np.arange(len(yticks)), np.around(yticks, decimals=2))
 
     # Compute the labels from the normalized confusion matrix.
-    labels = np.around(mat.astype('float'), decimals=2)
+    labels = np.around(mat.astype('float'), decimals=4)
 
     # Use white text if squares are dark; otherwise black.
     threshold = mat.max() / 2.
