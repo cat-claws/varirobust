@@ -46,6 +46,16 @@ def sample_steep(x, eps, num):
         all_inputs.append(x2)
     return torch.stack(all_inputs)
 
+
+def forward_samples(net, sample_, x, eps, num, batch_size, **kwargs):
+    num_inputs = (num + 1) * len(x)
+    all_inputs = sample_(x, eps, num)
+    outputs = []
+    for k in range(int(np.ceil(num_inputs / batch_size))):
+        outputs.append(net(all_inputs.view(num_inputs, *x.shape[1:])[k * batch_size: (k + 1) * batch_size]))
+    outputs = torch.cat(outputs, dim = 0).view((num + 1), len(x), -1)
+    return outputs, all_inputs
+
 # def _cam_z(self, x):
 #     x_ = x.clone().detach()
 #     x_.requires_grad = True

@@ -3,6 +3,7 @@ import torch.nn as nn
 from torch.nn import functional as F
 
 import numpy as np
+from utils import sampling
 
 def probabilistically_robust_learning(model, loss_fn, xs, labels, k = 100, rho = 0.1):
     xs_k = xs.unsqueeze(0).repeat(k, 1, 1, 1, 1).view(k * xs.shape[0], *xs.shape[1:])
@@ -28,25 +29,14 @@ class Ensemble(torch.nn.Module):
     def forward(self, x):
         return (self.m1(x) + self.m2(x))/2
 
-class DeltaEnsemble(torch.nn.Module):
+class SampleEnsemble(torch.nn.Module):
     def __init__(self, m, sampling, eps, n_neighb, batch_size):
-        super(DeltaEnsemble, self).__init__()
+        super(SampleEnsemble, self).__init__()
         self.m = m
         self.sampling = sampling
         self.eps = eps
         self.n_neighb = n_neighb
         self.batch_size = batch_size
-
-    def _predict_neighb(self, x, n_neighb, batch_size = -1):
-        if batch_size == -1:
-            batch_size = self.batch_size
-        num_inputs = (n_neighb + 1) * len(x)
-        all_inputs = self.sampling(x, self.eps, n_neighb).view(num_inputs, *x.shape[1:])
-        outputs = []
-        for k in range(int(np.ceil(num_inputs / batch_size))):
-            outputs.append(self.m(all_inputs[k * batch_size: (k + 1) * batch_size]))
-        outputs = torch.cat(outputs, dim = 0).view((n_neighb + 1), len(x), -1)
-        return outputs
 
     def forward(self, x, n_neighb = -1, batch_size = -1):
         if n_neighb == -1:
@@ -57,5 +47,5 @@ class DeltaEnsemble(torch.nn.Module):
         if n_neighb == 0:
             return self.m(x)
         else:            
-            outputs = self._predict_neighb(x, n_neighb, batch_size)
+            outputs, _ = sampling.forward_samples(self.m, self.sampling, x, self.eps, n_neighb, batch_size)
             return sum(outputs) / n_neighb

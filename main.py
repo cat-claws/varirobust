@@ -8,6 +8,8 @@ from nets.mnist import ConvNet
 from utils import experiment, iterate
 from utils.sampling import sample_uniform_linf_with_clamp, sample_uniform_l2
 
+import numpy as np
+from ensemble import SampleEnsemble
 
 m = ConvNet()
 m = m.to('cuda' if torch.cuda.is_available() else 'cpu')
@@ -36,10 +38,6 @@ for eps_attack in [0.5, 1, 2, 4, 8]:
             )
         k += 1
 
-        import numpy as np
-        from ensemble import DeltaEnsemble
-
-
         ns_neighb = range(1, 4)
         epsilons = np.linspace(0.1, 0.4, 4)
         original_accuracy = np.empty((len(ns_neighb), len(epsilons)))
@@ -48,7 +46,7 @@ for eps_attack in [0.5, 1, 2, 4, 8]:
         for i, n_neighb in enumerate(ns_neighb):
             print(n_neighb)
             for j, eps in enumerate(epsilons):
-                m_ = DeltaEnsemble(m, sampling = sample_uniform_l2, n_neighb = n_neighb, eps = eps, batch_size = 4000)
+                m_ = SampleEnsemble(m, sampling = sample_uniform_l2, n_neighb = n_neighb, eps = eps, batch_size = 4000)
                 m_.eval()
 
                 outputs, outputs_ = iterate.attack(m_,
