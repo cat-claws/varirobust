@@ -75,7 +75,7 @@ def mnist_delta_predict_step_linf(net, batch, batch_idx, device = torch.device('
 	inputs, labels = batch
 	inputs, labels = inputs.to(device), labels.to(device)
 
-	num = 20
+	num = 40
 	eps = torch.ones_like(labels).view(1, -1, 1, 1, 1) * 0.5
 
 	for _ in range(50):
@@ -85,29 +85,29 @@ def mnist_delta_predict_step_linf(net, batch, batch_idx, device = torch.device('
 		eps += (correct_ - 0.5)# * ((correct_ < 0.5).float() * 30 + 1)
 		eps = torch.clamp(eps, 0, 1)
 
-	return {'predictions':eps.squeeze(), 'correct':correct_.squeeze(), 'samples':inputs_}
+	return {'predictions':eps.squeeze(), 'correct':correct_.squeeze()}#, 'samples':inputs_}
 
 def mnist_delta_predict_step_l2(net, batch, batch_idx, device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')):
 	inputs, labels = batch
 	inputs, labels = inputs.to(device), labels.to(device)
 	
-	num = 20
+	num = 50
 	eps = torch.ones_like(labels).view(1, -1, 1, 1, 1) * 0.5
 
-	for _ in range(50):
+	for _ in range(100):
 		scores_, inputs_ = forward_samples(net, sample_uniform_l2, inputs, eps, num, batch_size = 10000)
 		_, max_labels_ = scores_.max(-1)
 		correct_ = (max_labels_ == labels).float().mean(dim = 0).view(-1, 1, 1, 1)
-		eps += (correct_ - 0.5)# * ((correct_ < 0.5).float() * 30 + 1)
+		eps += (correct_ - 0.5) * ((correct_ < 0.5).float() * 5 + 1)
 		eps = torch.clamp(eps, 0, 28)
 
-	return {'predictions':eps.squeeze(), 'correct':correct_.squeeze(), 'samples':inputs_}
+	return {'predictions':eps.squeeze(), 'correct':correct_.squeeze()}#, 'samples':inputs_}
 
 def train(model, training_step, device, train_set, batch_size, optimizer, epoch, writer):
 	model = model.to(device)
 	model.train()
 	# Shuffling is needed in case dataset is not shuffled by default.
-	train_loader = torch.utils.data.DataLoader(dataset = train_set, batch_size = batch_size, num_workers = 4, shuffle = True)
+	train_loader = torch.utils.data.DataLoader(dataset = train_set, batch_size = batch_size, num_workers = 2, shuffle = True)
 
 	outputs = []
 	for batch_idx, batch in enumerate(train_loader):
@@ -130,7 +130,7 @@ def train(model, training_step, device, train_set, batch_size, optimizer, epoch,
 def validate(model, validation_step, device, val_set, batch_size, epoch, writer):
 	model.eval()
 	# We don't need to bach the validation set but let's do it anyway.
-	val_loader = torch.utils.data.DataLoader(dataset = val_set, batch_size = batch_size, num_workers = 4, shuffle = False) # No need.
+	val_loader = torch.utils.data.DataLoader(dataset = val_set, batch_size = batch_size, num_workers = 2, shuffle = False) # No need.
 
 	outputs = []
 	with torch.no_grad():
@@ -149,7 +149,7 @@ def attack(model, validation_step, attacked_step, device, val_set, batch_size, e
   
 	model.eval()
 	# We don't need to bach the validation set but let's do it anyway.
-	val_loader = torch.utils.data.DataLoader(dataset = val_set, batch_size = batch_size, num_workers = 4, shuffle = False) # No need.
+	val_loader = torch.utils.data.DataLoader(dataset = val_set, batch_size = batch_size, num_workers = 2, shuffle = False) # No need.
 
 	atk = torchattack(model, eps=eps, alpha=alpha, steps=steps, random_start=random_start)
 
@@ -175,7 +175,7 @@ def attack(model, validation_step, attacked_step, device, val_set, batch_size, e
 def predict(model, predict_step, device, val_set, batch_size, epoch=None, writer=None):
 	model.eval()
 	# We don't need to bach the validation set but let's do it anyway.
-	val_loader = torch.utils.data.DataLoader(dataset = val_set, batch_size = batch_size, num_workers = 4, shuffle = False) # No need.
+	val_loader = torch.utils.data.DataLoader(dataset = val_set, batch_size = batch_size, num_workers = 2, shuffle = False) # No need.
 
 	outputs = []
 	with torch.no_grad():
