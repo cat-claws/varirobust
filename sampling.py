@@ -3,7 +3,7 @@ import torch.nn as nn
 from torch.nn import functional as F
 
 import numpy as np
-from utils.experiment import forward_micro
+from utils.misc import forward_micro
 
 def sample_uniform_linf(x, eps, num):
     x_ = x.repeat(num, 1, 1, 1, 1)
@@ -47,8 +47,8 @@ def sample_steep(x, eps, num):
         all_inputs.append(x2)
     return torch.stack(all_inputs)
 
-def forward_samples(net, x, **kwargs):
-    num_inputs = (num + 1) * len(x)
-    all_inputs = sample_(x, eps, num)
-    outputs = forward_micro(net, all_inputs, microbatch_size)
+def forward_samples(net, x, **kw):
+    num_inputs = (kw['num'] + 1) * len(x)
+    all_inputs = kw['sample_'](x, kw['eps'], kw['num'])
+    outputs = forward_micro(net, all_inputs, kw['microbatch_size'])
     return outputs, all_inputs
