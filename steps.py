@@ -111,14 +111,14 @@ def trades_step(net, batch, batch_idx, **kw):
 	correct = (max_labels == labels).sum()
 	return {'loss':loss, 'correct':correct}
 
-def prl_step(net, batch, batch_idx, **kw):
+def prl_step(net, batch, batch_idx, **kw):# dimension problem
 	inputs, labels = batch
 	inputs, labels = inputs.to(kw['device']), labels.to(kw['device'])
 
 	scores_, inputs_ = forward_samples(net, inputs, **kw)
 	loss_ = F.cross_entropy(scores_.permute(1, 2, 0), labels.unsqueeze(1).expand(-1, kw['num'] + 1), reduction = 'none')
 
-	alpha = np.quantile(loss_.detach().cpu(), kw['threshold'])
+	alpha = torch.quantile(loss_.detach(), kw['threshold'], dim = 1)
 
 	loss = F.threshold(loss_, alpha, 0.).mean(dim = 0).sum() / (1 - kw['threshold'])
 
@@ -142,8 +142,8 @@ def our_step(net, batch, batch_idx, **kw):
 
 	loss_ = F.cross_entropy(scores_.permute(1, 2, 0), labels.unsqueeze(1).expand(-1, kw['num'] + 1), reduction = 'none')
 
-	sigma = torch.std(loss_, dim = 0)
-	mu = torch.mean(loss_, dim = 0)
+	sigma = torch.std(loss_, dim = 1)
+	mu = torch.mean(loss_, dim = 1)
 
 	loss = (mu + sigma).sum()
 
