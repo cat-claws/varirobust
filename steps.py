@@ -110,7 +110,31 @@ def trades_step(net, batch, batch_idx, **kw):
 	max_scores, max_labels = scores.max(1)
 	correct = (max_labels == labels).sum()
 	return {'loss':loss, 'correct':correct}
-	
+
+def prl_step(net, batch, batch_idx, **kw):
+	inputs, labels = batch
+	inputs, labels = inputs.to(kw['device']), labels.to(kw['device'])
+
+	scores_, inputs_ = forward_samples(net, inputs, **kw)
+	loss_ = F.cross_entropy(scores_.permute(1, 2, 0), labels.unsqueeze(1).expand(-1, kw['num'] + 1), reduction = 'none')
+
+	alpha = np.quantile(loss_.detach().cpu(), kw['threshold'])
+
+	loss = F.threshold(loss_, alpha, 0.).mean(dim = 0).sum() / (1 - kw['threshold'])
+
+	with torch.no_grad():
+		_, max_labels_ = scores_.max(-1)
+		correct_ = (max_labels_ == labels).float()
+
+		correct = correct_[0].sum()	
+		correct_ = correct_.mean(dim = 0)
+		
+		augmented_accuracy = correct_.sum()
+		quantile_accuracy = (correct_ > kw['threshold']).sum().float()
+
+	return {'loss':loss, 'correct':correct, 'augmented':augmented_accuracy, 'quantile':quantile_accuracy, 'alpha':alpha}
+
+
 def our_step(net, batch, batch_idx, **kw):
 	inputs, labels = batch
 	inputs, labels = inputs.to(kw['device']), labels.to(kw['device'])
