@@ -3,7 +3,6 @@ import torch.nn as nn
 from torch.nn import functional as F
 
 import numpy as np
-# from torch.utils.tensorboard import SummaryWriter
 
 from utils.metrics import augmented_accuracy
 from utils.sampling import sample_uniform_linf_with_clamp, sample_uniform_l2, forward_samples

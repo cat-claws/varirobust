@@ -10,23 +10,7 @@ import optimizers
 import attacks
 
 ALGORITHMS = [
-    'ERM',
-    'PGD',
-    'FGSM',
     'TRADES',
-    'ALP',
-    'CLP',
-    'Gaussian_DALE',
-    'Laplacian_DALE',
-    'Gaussian_DALE_PD',
-    'Gaussian_DALE_PD_Reverse',
-    'KL_DALE_PD',
-    'FuncNorm',
-    'CVaR_SGD',
-    'CVaR_SGD_Autograd',
-    'CVaR_SGD_PD',
-    'ERM_DataAug',
-    'TERM',
     'RandSmoothing'
 ]
 
