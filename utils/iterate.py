@@ -3,7 +3,6 @@ import torch
 def train(net, training_step, train_set, optimizer, **kw):
 	net = net.to(kw['device'])
 	net.train()
-	# Shuffling is needed in case dataset is not shuffled by default.
 	train_loader = torch.utils.data.DataLoader(dataset = train_set, batch_size =  kw['batch_size'], num_workers = 2, shuffle = True)
 
 	outputs = []

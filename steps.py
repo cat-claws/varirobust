@@ -35,7 +35,7 @@ def ordinary_step(net, batch, batch_idx, **kw):
 def rand_step(net, batch, batch_idx, **kw):
 	inputs, labels = batch
 	inputs, labels = inputs.to(kw['device']), labels.to(kw['device'])
-	scores = net(inputs + kw['noise_level'] * torch.randn_like(inputs)) # add gaussian noise default 0.6
+	scores = net(inputs + kw['noise_level'] * torch.randn_like(inputs))
 	loss = F.cross_entropy(scores, labels, reduction = 'sum')
 
 	max_scores, max_labels = scores.max(1)
@@ -50,14 +50,15 @@ def augmented_step(net, batch, batch_idx, **kw):
 	scores_, inputs_ = forward_samples(net, inputs, **kw)
 	loss = F.cross_entropy(scores_.permute(1, 2, 0), labels.unsqueeze(1).expand(-1, kw['num'] + 1), reduction = 'sum')
 
-	_, max_labels_ = scores_.max(-1)
-	correct_ = (max_labels_ == labels).float()
+	with torch.no_grad():
+		_, max_labels_ = scores_.max(-1)
+		correct_ = (max_labels_ == labels).float()
 
-	correct = correct_[0].sum()	
-	correct_ = correct_.mean(dim = 0)
-	
-	augmented_accuracy = correct_.sum()
-	quantile_accuracy = (correct_ > kw['threshold']).sum().float()
+		correct = correct_[0].sum()	
+		correct_ = correct_.mean(dim = 0)
+		
+		augmented_accuracy = correct_.sum()
+		quantile_accuracy = (correct_ > kw['threshold']).sum().float()
 
 	return {'loss':loss, 'correct':correct, 'augmented':augmented_accuracy, 'quantile':quantile_accuracy}
 
@@ -109,3 +110,27 @@ def trades_step(net, batch, batch_idx, **kw):
 	max_scores, max_labels = scores.max(1)
 	correct = (max_labels == labels).sum()
 	return {'loss':loss, 'correct':correct}
+	
+def our_step(net, batch, batch_idx, **kw):
+	inputs, labels = batch
+	inputs, labels = inputs.to(kw['device']), labels.to(kw['device'])
+	scores_, inputs_ = forward_samples(net, inputs, **kw)
+
+	loss_ = F.cross_entropy(scores_.permute(1, 2, 0), labels.unsqueeze(1).expand(-1, kw['num'] + 1), reduction = 'none')
+
+	sigma = torch.std(loss_, dim = 0)
+	mu = torch.mean(loss_, dim = 0)
+
+	loss = (mu + sigma).sum()
+
+	with torch.no_grad():
+		_, max_labels_ = scores_.max(-1)
+		correct_ = (max_labels_ == labels).float()
+
+		correct = correct_[0].sum()	
+		correct_ = correct_.mean(dim = 0)
+		
+		augmented_accuracy = correct_.sum()
+		quantile_accuracy = (correct_ > kw['threshold']).sum().float()
+
+	return {'loss':loss, 'correct':correct, 'augmented':augmented_accuracy, 'quantile':quantile_accuracy, 'mu':mu.sum(), 'sigma':sigma.sum()}

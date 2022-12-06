@@ -11,19 +11,22 @@ from utils import nets, datasets, iterate, misc
 
 # datasets.auto_set('SVHN', download=True, split = 'train', transform=misc.transforms_3)
 m = nets.auto_net(1).cuda()
+train_set = datasets.auto_set('MNIST', download=True, train = True, transform=misc.transforms_1)
+val_set = datasets.auto_set('MNIST', download=False, train = False, transform=misc.transforms_1)
+
 writer = SummaryWriter(comment=m._get_name() + '_train_val')
 
 for epoch in range(100):
     m = iterate.train(m,
-        steps.auto_step,
-        noise_level = 0.6,
-        # sample_ = sample_uniform_linf_with_clamp,
-        # num = 2,
-        # eps = 0.1,
-        # microbatch_size = 10000,
-        # threshold = 0.9,
+        steps.our_step,
+        # noise_level = 0.6,
+        sample_ = sample_uniform_linf_with_clamp,
+        num = 20,
+        eps = 0.1,
+        microbatch_size = 10000,
+        threshold = 0.9,
         device = 'cuda',
-        train_set = datasets.auto_set('MNIST', download=True, train = True, transform=misc.transforms_1),
+        train_set = train_set,
         batch_size = 1000,
         optimizer = torch.optim.Adam(m.parameters(), lr = 0.001),
         epoch = epoch,
@@ -34,17 +37,22 @@ for epoch in range(100):
     iterate.validate(m,
         steps.auto_step,
         device = 'cuda',
-        val_set = datasets.auto_set('MNIST', download=False, train = False, transform=misc.transforms_1),
+        val_set = val_set,
         batch_size = 1000,
         epoch = epoch,
-        writer = writer
+        writer = writer,
+        sample_ = sample_uniform_linf_with_clamp,
+        num = 100,
+        eps = 0.1,
+        microbatch_size = 10000,
+        threshold = 0.9,
     )
 
     iterate.attack(m,
         steps.ordinary_step,
         steps.auto_step,
         device = 'cuda',
-        val_set = datasets.auto_set('MNIST', download=False, train = False, transform=misc.transforms_1),
+        val_set = val_set,
         batch_size = 1000,
         epoch = epoch,
         writer = writer,
@@ -55,7 +63,7 @@ for epoch in range(100):
     #     steps.ordinary_step,
     #     steps.auto_step,
     #     device = 'cuda',
-    #     val_set = datasets.auto_set('MNIST', download=True, train = False, transform=misc.transforms_1),
+    #     val_set = val_set,
     #     batch_size = 1000,
     #     epoch = epoch,
     #     writer = writer,
