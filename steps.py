@@ -56,7 +56,7 @@ def prl_step(net, batch, batch_idx, **kw):# dimension problem
 
 	alpha = torch.quantile(loss_.detach(), kw['threshold'], dim = 1)
 
-	loss = F.threshold(loss_, alpha, 0.).mean(dim = 0).sum() / (1 - kw['threshold'])
+	loss = F.relu(loss_ - alpha).mean(dim = 1).sum() / (1 - kw['threshold'])
 
 	with torch.no_grad():
 		_, max_labels_ = scores_.max(-1)
