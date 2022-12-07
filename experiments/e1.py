@@ -15,7 +15,7 @@ config = {
 	# 'noise_level':0.6,
 	'sample_':'sample_uniform_linf_with_clamp',
 	'num':50,
-	'eps':0.1,
+	'eps':0.3,
 	'microbatch_size':10000,
 	'threshold':0.9,
 	'device':'cuda',
