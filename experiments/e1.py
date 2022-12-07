@@ -11,10 +11,10 @@ from utils import nets, datasets, iterate, misc
 config = {
 	'dataset':'MNIST',
 	'training_step':'our_step',
-	'batch_size':1000,
+	'batch_size':64,
 	# 'noise_level':0.6,
 	'sample_':'sample_uniform_linf_with_clamp',
-	'num':20,
+	'num':50,
 	'eps':0.1,
 	'microbatch_size':10000,
 	'threshold':0.9,
@@ -23,18 +23,19 @@ config = {
 	'attacked_step':'attacked_step'
 	}
 
+train_set, val_set, channel = misc.auto_sets(config['dataset'])
+m = nets.auto_net(channel).cuda()
+
+writer = SummaryWriter(comment = f"_{config['dataset']}_{m._get_name()}_{config['training_step']}")
+
 for k, v in config.items():
 	if k.endswith('_step'):
 		config[k] = vars(steps)[v]
 	elif k == 'sample_':
 		config[k] = vars(sampling)[v]
 
-train_set, val_set, channel = misc.auto_sets(config['dataset'])
-m = nets.auto_net(channel).cuda()
 
-writer = SummaryWriter(comment = f"_{config['dataset']}_{m._get_name()}_{config['training_step']}")
-
-for epoch in range(100):
+for epoch in range(300):
 	m = iterate.train(m,
 		train_set = train_set,
 		optimizer = torch.optim.Adam(m.parameters(), lr = 0.001),
