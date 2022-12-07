@@ -27,7 +27,7 @@ train_set, val_set, channel = misc.auto_sets(config['dataset'])
 m = nets.auto_net(channel).cuda()
 
 writer = SummaryWriter(comment = f"_{config['dataset']}_{m._get_name()}_{config['training_step']}")
-writer.add_hparams(config)
+writer.add_hparams(config, {})
 
 for k, v in config.items():
 	if k.endswith('_step'):
