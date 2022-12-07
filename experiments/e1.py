@@ -49,8 +49,8 @@ for epoch in range(300):
 		val_set = val_set,
 		epoch = epoch,
 		writer = writer,
-		atk=torchattacks.PGD(m, eps=0.1, alpha=1/255, steps=40, random_start=False),
-	#     atk=torchattacks.PGDL2(m, eps=0.5, alpha=0.2, steps=40, random_start=True),
+		atk = torchattacks.PGD(m, eps=0.1, alpha=1/255, steps=40, random_start=False),
+	#     atk = torchattacks.PGDL2(m, eps=0.5, alpha=0.2, steps=40, random_start=True),
 		**config
 	)
 
@@ -58,16 +58,11 @@ for epoch in range(300):
 print(m)
 torch.save(m.state_dict(), "checkpoints/" + writer.log_dir.split('/')[-1] + ".pt")
 
-# outputs = iterate.predict(m,
-#         steps.auto_step,
-#         device = 'cuda',
-#         val_set = datasets.auto_set('MNIST', download=False, train = False, transform=misc.transforms_1),
-#         batch_size = 100,
-#         predict = True
-# )
+outputs = iterate.predict(m,
+        steps.predict_step,
+        val_set = val_set,
+)
 
 # print(outputs.keys(), outputs['predictions'])
 writer.flush()
 writer.close()
-
-
