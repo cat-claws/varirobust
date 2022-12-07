@@ -14,6 +14,11 @@ def sample_uniform_linf(x, eps, num):
 	return x_
 
 def sample_uniform_linf_with_clamp(x, eps, num):
+	x_ = sample_uniform_linf(x, eps, num)
+	x_ = torch.clamp(x_, min = 0, max = 1)
+	return x_
+
+def sample_uniform_linf_with_soft_clamp(x, eps, num):
 	x_ = x.repeat(num, 1, 1, 1, 1)
 	ub = torch.clamp(x + eps, min = 0, max = 1)
 	lb = torch.clamp(x - eps, min = 0, max = 1)
