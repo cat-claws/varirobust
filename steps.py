@@ -5,22 +5,6 @@ from torch.nn import functional as F
 from sampling import forward_samples
 
 
-def auto_step(net, batch, batch_idx, **kw):
-	if 'noise_level' in kw:
-		return rand_step(net, batch, batch_idx, **kw)
-	elif 'num_estimates' in kw:
-		return perturbation_estimate_step(net, batch, batch_idx, **kw)
-	elif 'sample_' in kw:
-		return augmented_step(net, batch, batch_idx, **kw)
-	elif 'atk' in kw:
-		# if kw['atk'] == 
-		return attacked_step(net, batch, batch_idx, **kw)
-	elif 'predict' in kw:
-		return predict_step(net, batch, batch_idx, **kw)
-	else:
-		return ordinary_step(net, batch, batch_idx, **kw)
-
-
 def ordinary_step(net, batch, batch_idx, **kw):
 	inputs, labels = batch
 	inputs, labels = inputs.to(kw['device']), labels.to(kw['device'])
@@ -62,54 +46,6 @@ def augmented_step(net, batch, batch_idx, **kw):
 
 	return {'loss':loss, 'correct':correct, 'augmented':augmented_accuracy, 'quantile':quantile_accuracy}
 
-
-def attacked_step(net, batch, batch_idx, **kw):
-	inputs, labels = batch
-	inputs, labels = inputs.to(kw['device']), labels.to(kw['device'])
-	inputs_ = kw['atk'](inputs, labels)
-
-	scores = net(inputs_)
-	loss = F.cross_entropy(scores, labels, reduction = 'sum')
-
-	max_scores, max_labels = scores.max(1)
-	correct = (max_labels == labels).sum()
-	return {'loss':loss, 'correct':correct}
-
-def predict_step(net, batch, batch_idx, **kw):
-	inputs, _ = batch
-	inputs = inputs.to(kw['device'])
-	scores = net(inputs)
-
-	max_scores, max_labels = scores.max(1)
-	return {'predictions':max_labels}
-
-def perturbation_estimate_step(net, batch, batch_idx, **kw): # num = 40, batch_size = 10000
-	inputs, labels = batch
-	inputs, labels = inputs.to(kw['device']), labels.to(kw['device'])
-
-	eps = torch.ones_like(labels).view(1, -1, 1, 1, 1) * 0.5
-
-	for _ in range(num_estimates):
-		scores_, inputs_ = forward_samples(net, inputs, **kw)
-		_, max_labels_ = scores_.max(-1)
-		correct_ = (max_labels_ == labels).float().mean(dim = 0).view(-1, 1, 1, 1)
-		eps += (correct_ - 0.5)# * ((correct_ < 0.5).float() * 30 + 1)
-		eps = torch.clamp(eps, lb, ub)
-
-	return {'eps':eps.squeeze(), 'correct':correct_.squeeze()}#, 'samples':inputs_}
-
-
-def trades_step(net, batch, batch_idx, **kw):
-	inputs, labels = batch
-	inputs, labels = inputs.to(kw['device']), labels.to(kw['device'])
-	inputs_ = kw['atk'](inputs, labels)
-
-	scores = net(inputs_)
-	loss = F.cross_entropy(scores, labels, reduction = 'sum') + F.kl_div(torch.log_softmax(scores, dim=1), net(inputs), reduction='batchmean') * inputs.shape[0]
-
-	max_scores, max_labels = scores.max(1)
-	correct = (max_labels == labels).sum()
-	return {'loss':loss, 'correct':correct}
 
 def prl_step(net, batch, batch_idx, **kw):# dimension problem
 	inputs, labels = batch
@@ -158,3 +94,65 @@ def our_step(net, batch, batch_idx, **kw):
 		quantile_accuracy = (correct_ > kw['threshold']).sum().float()
 
 	return {'loss':loss, 'correct':correct, 'augmented':augmented_accuracy, 'quantile':quantile_accuracy, 'mu':mu.sum(), 'sigma':sigma.sum()}
+
+def attacked_step(net, batch, batch_idx, **kw):
+	inputs, labels = batch
+	inputs, labels = inputs.to(kw['device']), labels.to(kw['device'])
+	inputs_ = kw['atk'](inputs, labels)
+
+	scores = net(inputs_)
+	loss = F.cross_entropy(scores, labels, reduction = 'sum')
+
+	max_scores, max_labels = scores.max(1)
+	correct = (max_labels == labels).sum()
+	return {'loss':loss, 'correct':correct}
+
+
+def trades_step(net, batch, batch_idx, **kw):
+	inputs, labels = batch
+	inputs, labels = inputs.to(kw['device']), labels.to(kw['device'])
+	inputs_ = kw['atk'](inputs, labels)
+
+	scores = net(inputs_)
+	loss = F.cross_entropy(scores, labels, reduction = 'sum') + F.kl_div(torch.log_softmax(scores, dim=1), net(inputs), reduction='batchmean') * inputs.shape[0]
+
+	max_scores, max_labels = scores.max(1)
+	correct = (max_labels == labels).sum()
+	return {'loss':loss, 'correct':correct}
+
+
+def predict_step(net, batch, batch_idx, **kw):
+	inputs, _ = batch
+	inputs = inputs.to(kw['device'])
+	scores = net(inputs)
+
+	max_scores, max_labels = scores.max(1)
+	return {'predictions':max_labels}
+
+def perturbation_estimate_step(net, batch, batch_idx, **kw): # num = 40, batch_size = 10000
+	inputs, labels = batch
+	inputs, labels = inputs.to(kw['device']), labels.to(kw['device'])
+
+	eps = torch.ones_like(labels).view(1, -1, 1, 1, 1) * 0.5
+
+	for _ in range(num_estimates):
+		scores_, inputs_ = forward_samples(net, inputs, **kw)
+		_, max_labels_ = scores_.max(-1)
+		correct_ = (max_labels_ == labels).float().mean(dim = 0).view(-1, 1, 1, 1)
+		eps += (correct_ - 0.5)# * ((correct_ < 0.5).float() * 30 + 1)
+		eps = torch.clamp(eps, lb, ub)
+
+	return {'eps':eps.squeeze(), 'correct':correct_.squeeze()}#, 'samples':inputs_}
+
+# auto_step = {
+# 	'ordinary':ordinary_step,
+# 	'rand': rand_step,
+# 	'augmented':augmented_step,
+# 	'prl':prl_step,
+# 	'our':our_step,
+# 	'attacked':attacked_step,
+# 	'trades':trades_step,
+# 	'predict':predict_step,
+# 	'perturbation_estimate':perturbation_estimate_step,
+# }
+# def auto_step

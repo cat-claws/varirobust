@@ -10,6 +10,8 @@ import itertools
 import numpy as np
 import matplotlib.pyplot as plt
 
+from . import datasets
+
 transforms_3 = transforms.Compose([
     transforms.RandomCrop(32, padding=4),
     transforms.RandomHorizontalFlip(),
@@ -21,6 +23,21 @@ transforms_1 = transforms.Compose([
     transforms.ToTensor(),
     transforms.Normalize(0, 1)
     ])
+
+def auto_sets(name):
+    if name == 'MNIST':
+        train_set = datasets.auto_set('MNIST', download=True, train = True, transform=transforms_1)
+        val_set = datasets.auto_set('MNIST', download=False, train = False, transform=transforms_1)
+        channel = 1
+    elif name == 'CIFAR10':
+        train_set = datasets.auto_set('MNIST', download=True, train = True, transform=transforms_3)
+        val_set = datasets.auto_set('MNIST', download=False, train = False, transform=transforms_1)
+        channel = 3
+    elif name == 'SVHN':
+        train_set =  datasets.auto_set('SVHN', download=True, split = 'train', transform=transforms_3)
+        val_set =  datasets.auto_set('SVHN', download=True, split = 'test', transform=transforms_1)
+        channel = 3
+    return train_set, val_set, channel
 
 
 # batch process sampled inputs
