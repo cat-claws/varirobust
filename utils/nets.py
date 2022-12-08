@@ -36,7 +36,7 @@ class ConvNet(nn.Module):
 		x = F.relu(x)
 		x = self.dropout2(x)
 		x = self.fc2(x)
-		return x#F.log_softmax(x, dim=1)
+		return x
 
 """Resnet implementation is based on the implementation found in:
 https://github.com/YisenWang/MART/blob/master/resnet.py
