@@ -114,7 +114,7 @@ def trades_step(net, batch, batch_idx, **kw):
 	inputs_ = kw['atk'](inputs, labels)
 
 	scores = net(inputs_)
-	loss = F.cross_entropy(scores, labels, reduction = 'sum') + F.kl_div(torch.log_softmax(scores, dim=1), net(inputs), reduction='batchmean') * inputs.shape[0]
+	loss = F.cross_entropy(scores, labels, reduction = 'sum') + F.kl_div(torch.log_softmax(scores, dim=1), F.softmax(net(inputs), dim=1), reduction='batchmean') * inputs.shape[0]
 
 	max_scores, max_labels = scores.max(1)
 	correct = (max_labels == labels).sum()
