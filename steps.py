@@ -78,8 +78,8 @@ def our_step(net, batch, batch_idx, **kw):
 
 	loss_ = F.cross_entropy(scores_.permute(1, 2, 0), labels.unsqueeze(1).expand(-1, kw['num'] + 1), reduction = 'none')
 
-	sigma = torch.std(loss_, dim = 1)
-	mu = torch.mean(loss_, dim = 1)
+	sigma = torch.std(loss_[:, 1:], dim = 1)
+	mu = torch.mean(loss_[:, 1:], dim = 1)
 
 	loss = (mu + sigma).sum()
 
@@ -143,16 +143,3 @@ def perturbation_estimate_step(net, batch, batch_idx, **kw): # num = 40, batch_s
 		eps = torch.clamp(eps, lb, ub)
 
 	return {'eps':eps.squeeze(), 'correct':correct_.squeeze()}#, 'samples':inputs_}
-
-# auto_step = {
-# 	'ordinary':ordinary_step,
-# 	'rand': rand_step,
-# 	'augmented':augmented_step,
-# 	'prl':prl_step,
-# 	'our':our_step,
-# 	'attacked':attacked_step,
-# 	'trades':trades_step,
-# 	'predict':predict_step,
-# 	'perturbation_estimate':perturbation_estimate_step,
-# }
-# def auto_step
