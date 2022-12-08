@@ -10,7 +10,7 @@ from utils import nets, datasets, iterate, misc
 
 config = {
 	'dataset':'MNIST',
-	'training_step':'trades_step',
+	'training_step':'our_step',
 	'batch_size':256,
 	'noise_level':0.6,
 	'sample_':'sample_uniform_linf_with_clamp',
