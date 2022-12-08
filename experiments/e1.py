@@ -28,6 +28,7 @@ m = nets.auto_net(channel).cuda()
 
 writer = SummaryWriter(comment = f"_{config['dataset']}_{m._get_name()}_{config['training_step']}")
 # writer.add_hparams(config, {})
+optimizer = torch.optim.Adadelta(m.parameters(), lr = 1)
 
 import json
 with open("checkpoints/configs.json", 'a') as f:
@@ -41,9 +42,9 @@ for k, v in config.items():
 
 
 for epoch in range(50):
-	m = iterate.train(m,
+	iterate.train(m,
 		train_set = train_set,
-		optimizer = torch.optim.Adadelta(m.parameters(), lr = 1),
+		optimizer = optimizer,
 		epoch = epoch,
 		writer = writer,
 		atk = torchattacks.TPGD(m, eps=config['eps'], alpha=0.1, steps=7),
