@@ -11,7 +11,7 @@ from utils import nets, datasets, iterate, misc
 config = {
 	'dataset':'MNIST',
 	'training_step':'trades_step',
-	'batch_size':64,
+	'batch_size':256,
 	'noise_level':0.6,
 	'sample_':'sample_uniform_linf_with_clamp',
 	'num':50,
@@ -40,7 +40,7 @@ for k, v in config.items():
 		config[k] = vars(sampling)[v]
 
 
-for epoch in range(300):
+for epoch in range(50):
 	m = iterate.train(m,
 		train_set = train_set,
 		optimizer = torch.optim.Adam(m.parameters(), lr = 0.001),
