@@ -30,8 +30,8 @@ writer = SummaryWriter(comment = f"_{config['dataset']}_{m._get_name()}_{config[
 # writer.add_hparams(config, {})
 
 import json
-with open("checkpoints/" + writer.log_dir.split('/')[-1] + ".json", 'w') as f:
-	f.write(json.dumps(config))
+with open("checkpoints/configs.json", 'a') as f:
+	f.write(json.dumps({**{'run':writer.log_dir.split('/')[-1]}, **config}) + '\n')
 
 for k, v in config.items():
 	if k.endswith('_step'):
