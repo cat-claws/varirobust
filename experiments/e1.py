@@ -43,7 +43,7 @@ for k, v in config.items():
 for epoch in range(50):
 	m = iterate.train(m,
 		train_set = train_set,
-		optimizer = torch.optim.Adadelta(m.parameters(), lr = 0.001),
+		optimizer = torch.optim.Adadelta(m.parameters(), lr = 1),
 		epoch = epoch,
 		writer = writer,
 		atk = torchattacks.TPGD(m, eps=config['eps'], alpha=0.1, steps=7),
