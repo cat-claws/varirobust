@@ -42,7 +42,7 @@ for epoch in range(300):
 		optimizer = torch.optim.Adam(m.parameters(), lr = 0.001),
 		epoch = epoch,
 		writer = writer,
-		atk = torchattacks.TPGD(m, eps=config['eps'], alpha=0.1, steps=7)
+		atk = torchattacks.TPGD(m, eps=config['eps'], alpha=0.1, steps=7),
 		**config
 	)
 
