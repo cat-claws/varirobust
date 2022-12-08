@@ -9,7 +9,7 @@ import sampling
 from utils import nets, datasets, iterate, misc
 
 config = {
-	'dataset':'MNIST',
+	'dataset':'CIFAR10',
 	'training_step':'our_step',
 	'batch_size':32,
 	'noise_level':0.6,
@@ -28,7 +28,6 @@ m = nets.auto_net(channel).cuda()
 
 writer = SummaryWriter(comment = f"_{config['dataset']}_{m._get_name()}_{config['training_step']}")
 # writer.add_hparams(config, {})
-# optimizer = torch.optim.Adadelta(m.parameters(), lr = 1)
 optimizer = torch.optim.Adam(m.parameters(), lr = 1e-3)
 
 import json
