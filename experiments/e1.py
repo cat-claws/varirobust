@@ -10,7 +10,7 @@ from utils import nets, datasets, iterate, misc
 
 config = {
 	'dataset':'MNIST',
-	'training_step':'rand_step',
+	'training_step':'trades_step',
 	'batch_size':64,
 	'noise_level':0.6,
 	'sample_':'sample_uniform_linf_with_clamp',
@@ -42,7 +42,7 @@ for epoch in range(300):
 		optimizer = torch.optim.Adam(m.parameters(), lr = 0.001),
 		epoch = epoch,
 		writer = writer,
-		# atk = torchattacks.TPGD(m, eps=8/255, alpha=2/255, steps=10)
+		atk = torchattacks.TPGD(m, eps=config['eps'], alpha=0.1, steps=7)
 		**config
 	)
 
