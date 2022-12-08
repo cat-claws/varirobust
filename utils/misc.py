@@ -16,13 +16,9 @@ transforms_3 = transforms.Compose([
     transforms.RandomCrop(32, padding=4),
     transforms.RandomHorizontalFlip(),
     transforms.ToTensor(),
-    transforms.Normalize(0, 1)
     ])
 
-transforms_1 = transforms.Compose([
-    transforms.ToTensor(),
-    transforms.Normalize(0, 1)
-    ])
+transforms_1 = transforms.ToTensor()
 
 def auto_sets(name):
     if name == 'MNIST':
