@@ -12,7 +12,7 @@ config = {
 	'dataset':'MNIST',
 	'training_step':'rand_step',
 	'batch_size':64,
-	# 'noise_level':0.6,
+	'noise_level':0.6,
 	'sample_':'sample_uniform_linf_with_clamp',
 	'num':50,
 	'eps':0.3,
