@@ -32,7 +32,7 @@ def augmented_step(net, batch, batch_idx, **kw):
 	inputs, labels = inputs.to(kw['device']), labels.to(kw['device'])
 
 	scores_, inputs_ = forward_samples(net, inputs, **kw)
-	loss = F.cross_entropy(scores_.permute(1, 2, 0), labels.unsqueeze(1).expand(-1, kw['num'] + 1), reduction = 'sum')
+	loss = F.cross_entropy(scores_.permute(1, 2, 0), labels.unsqueeze(1).expand(-1, kw['num'] + 1), reduction = 'mean') * inputs.shape[0]
 
 	with torch.no_grad():
 		_, max_labels_ = scores_.max(-1)
