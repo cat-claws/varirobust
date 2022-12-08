@@ -11,7 +11,7 @@ from utils import nets, datasets, iterate, misc
 config = {
 	'dataset':'MNIST',
 	'training_step':'our_step',
-	'batch_size':256,
+	'batch_size':32,
 	'noise_level':0.6,
 	'sample_':'sample_uniform_linf_with_clamp',
 	'num':50,
@@ -43,7 +43,7 @@ for k, v in config.items():
 for epoch in range(50):
 	m = iterate.train(m,
 		train_set = train_set,
-		optimizer = torch.optim.Adam(m.parameters(), lr = 0.001),
+		optimizer = torch.optim.Adadelta(m.parameters(), lr = 0.001),
 		epoch = epoch,
 		writer = writer,
 		atk = torchattacks.TPGD(m, eps=config['eps'], alpha=0.1, steps=7),
