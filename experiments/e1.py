@@ -29,6 +29,10 @@ m = nets.auto_net(channel).cuda()
 writer = SummaryWriter(comment = f"_{config['dataset']}_{m._get_name()}_{config['training_step']}")
 # writer.add_hparams(config, {})
 
+import json
+with open("checkpoints/" + writer.log_dir.split('/')[-1] + ".json", 'w') as f:
+	f.write(json.dumps(config))
+
 for k, v in config.items():
 	if k.endswith('_step'):
 		config[k] = vars(steps)[v]
