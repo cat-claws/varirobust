@@ -64,8 +64,9 @@ print(m)
 torch.save(m.state_dict(), "checkpoints/" + writer.log_dir.split('/')[-1] + ".pt")
 
 outputs = iterate.predict(m,
-        steps.predict_step,
-        val_set = val_set,
+	steps.predict_step,
+	val_set = val_set,
+	**config
 )
 
 # print(outputs.keys(), outputs['predictions'])
