@@ -42,7 +42,7 @@ for k, v in config.items():
 		config[k] = vars(sampling)[v]
 
 
-for epoch in range(50):
+for epoch in range(300):
 	iterate.train(m,
 		train_set = train_set,
 		optimizer = optimizer,
