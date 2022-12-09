@@ -9,7 +9,7 @@ def train(net, training_step, train_set, optimizer, **kw):
 	for batch_idx, batch in enumerate(train_loader):
 		optimizer.zero_grad()
 		output = training_step(net, batch, batch_idx, **kw)
-		loss = output['loss']
+		loss = output['loss'] / kw['batch_size']
 		outputs.append(output)
 		for k, v in output.items():
 			kw['writer'].add_scalar("Step-" + k + "-train", v / kw['batch_size'], kw['epoch'] * len(train_loader) + batch_idx)
