@@ -12,7 +12,7 @@ config = {
 	'dataset':'MNIST',
 	'training_step':'our_step',
 	'batch_size':32,
-	'noise_level':0.6,
+# 	'noise_level':0.6,
 	'sample_':'sample_uniform_linf_with_clamp',
 	'num':50,
 	'eps':0.3,
@@ -29,6 +29,7 @@ m = nets.auto_net(channel).cuda()
 writer = SummaryWriter(comment = f"_{config['dataset']}_{m._get_name()}_{config['training_step']}")
 # writer.add_hparams(config, {})
 optimizer = torch.optim.Adadelta(m.parameters(), lr = 1)
+# optimizer = torch.optim.Adam(m.parameters(), lr = 1e-3)
 
 import json
 with open("checkpoints/configs.json", 'a') as f:
@@ -41,7 +42,7 @@ for k, v in config.items():
 		config[k] = vars(sampling)[v]
 
 
-for epoch in range(50):
+for epoch in range(300):
 	iterate.train(m,
 		train_set = train_set,
 		optimizer = optimizer,
@@ -60,9 +61,9 @@ for epoch in range(50):
 		**config
 	)
 
+	torch.save(m.state_dict(), "checkpoints/" + writer.log_dir.split('/')[-1] + f"_{epoch:03}.pt")
 
 print(m)
-torch.save(m.state_dict(), "checkpoints/" + writer.log_dir.split('/')[-1] + ".pt")
 
 outputs = iterate.predict(m,
 	steps.predict_step,
