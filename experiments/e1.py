@@ -10,7 +10,7 @@ from utils import nets, datasets, iterate, misc
 
 config = {
 	'dataset':'MNIST',
-	'training_step':'our_step',
+	'training_step':'trades_step',
 	'batch_size':32,
 # 	'noise_level':0.6,
 	'sample_':'sample_uniform_linf_with_clamp',
@@ -61,7 +61,7 @@ for epoch in range(300):
 		**config
 	)
 
-	torch.save(m.state_dict(), "checkpoints/" + writer.log_dir.split('/')[-1] + f"_{epoch:03}.pt")
+	torch.save(m.state_dict(), "checkpoints_/" + writer.log_dir.split('/')[-1] + f"_{epoch:03}.pt")
 
 print(m)
 
