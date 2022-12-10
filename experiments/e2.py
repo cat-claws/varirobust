@@ -56,7 +56,7 @@ for epoch in range(300):
 		val_set = val_set,
 		epoch = epoch,
 		writer = writer,
-		atk = torchattacks.PGD(m, eps=config['eps'], alpha=0.1, steps=10, random_start=False),
+		atk = torchattacks.PGD(m, eps=config['eps'], alpha=0.003, steps=20, random_start=False),
 	#     atk = torchattacks.PGDL2(m, eps=0.5, alpha=0.2, steps=40, random_start=True),
 		**config
 	)
