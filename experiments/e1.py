@@ -56,12 +56,12 @@ for epoch in range(300):
 		val_set = val_set,
 		epoch = epoch,
 		writer = writer,
-		atk = torchattacks.PGD(m, eps=config['eps'], alpha=0.1, steps=10, random_start=False),
+		atk = torchattacks.PGD(m, eps=config['eps'], alpha=1/255, steps=400, random_start=False),
 	#     atk = torchattacks.PGDL2(m, eps=0.5, alpha=0.2, steps=40, random_start=True),
 		**config
 	)
 
-	torch.save(m.state_dict(), "checkpoints/" + writer.log_dir.split('/')[-1] + f"_{epoch:03}.pt")
+	torch.save(m.state_dict(), "checkpoints_/" + writer.log_dir.split('/')[-1] + f"_{epoch:03}.pt")
 
 print(m)
 

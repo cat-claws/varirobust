@@ -61,7 +61,7 @@ for epoch in range(300):
 		**config
 	)
 
-	torch.save(m.state_dict(), "checkpoints/" + writer.log_dir.split('/')[-1] + f"_{epoch:03}.pt")
+	torch.save(m.state_dict(), "checkpoints_/" + writer.log_dir.split('/')[-1] + f"_{epoch:03}.pt")
 
 print(m)
 
