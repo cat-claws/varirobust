@@ -11,6 +11,10 @@ from utils import nets, datasets, iterate, misc
 config = {
 	'dataset':'SVHN',
 	'training_step':'trades_step',
+	'optimizer':'SGD',
+	'lr':0.01,
+	'momentum':0.9,
+	'weight_decay':3.5e-3,
 	'batch_size':32,
 # 	'noise_level':0.6,
 	'sample_':'sample_uniform_linf_with_clamp',
@@ -28,12 +32,19 @@ m = nets.auto_net(channel).cuda()
 
 writer = SummaryWriter(comment = f"_{config['dataset']}_{m._get_name()}_{config['training_step']}")
 # writer.add_hparams(config, {})
-# optimizer = torch.optim.Adadelta(m.parameters(), lr = 1)
-optimizer = torch.optim.Adam(m.parameters(), lr = 1e-3/128)
 
 import json
 with open("checkpoints/configs.json", 'a') as f:
 	f.write(json.dumps({**{'run':writer.log_dir.split('/')[-1]}, **config}) + '\n')
+
+if config['optimizer'] == 'Adadelta':
+	optimizer = torch.optim.Adadelta(m.parameters(), lr = config['lr']) #lr = 1
+elif config['optimizer'] == 'Adam':
+	optimizer = torch.optim.Adam(m.parameters(), lr = config['lr']) #lr = 1e-3/128
+elif config['optimizer'] == 'SGD':
+	optimizer = optim.SGD(m.parameters(), lr=config['lr'], momentum=config['momentum'], weight_decay=config['weight_decay'])  
+elif config['optimizer'] == 'AdamW':
+	optimizer = torch.optim.AdamW(m.parameters(), lr=config['lr'], weight_decay=config['weight_decay']) #lr = 1e-3, weight_decay = 0
 
 for k, v in config.items():
 	if k.endswith('_step'):
