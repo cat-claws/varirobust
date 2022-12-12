@@ -10,7 +10,7 @@ from utils import nets, datasets, iterate, misc
 
 config = {
 	'dataset':'SVHN',
-	'training_step':'our_step',
+	'training_step':'trades_step',
 	'batch_size':32,
 # 	'noise_level':0.6,
 	'sample_':'sample_uniform_linf_with_clamp',
@@ -28,8 +28,8 @@ m = nets.auto_net(channel).cuda()
 
 writer = SummaryWriter(comment = f"_{config['dataset']}_{m._get_name()}_{config['training_step']}")
 # writer.add_hparams(config, {})
-optimizer = torch.optim.Adadelta(m.parameters(), lr = 1)
-# optimizer = torch.optim.Adam(m.parameters(), lr = 1e-3)
+# optimizer = torch.optim.Adadelta(m.parameters(), lr = 1)
+optimizer = torch.optim.Adam(m.parameters(), lr = 1e-3/128)
 
 import json
 with open("checkpoints/configs.json", 'a') as f:
