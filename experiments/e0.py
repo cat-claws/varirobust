@@ -13,7 +13,7 @@ config = {
 	'training_step':'trades_step',
 	'batch_size':32,
 	'optimizer':'SGD',
-	'optimizer_config':{# Adadelta lr = 1; AdamW lr = 1e-3, weight_decay = 0
+	'optimizer_config':{
 		'lr':0.1,
 		'momentum':0.9,
 		'weight_decay':2e-4,
@@ -46,8 +46,8 @@ config = {
 	'adversarial':'TPGD',
 	'adversarial_config':{
 		'eps':8/255,
+		'alpha':2/255,
 		'steps':10,
-		'alpha':0.007,
 	},
 	'device':'cuda',
 	'validation_step':'augmented_step',

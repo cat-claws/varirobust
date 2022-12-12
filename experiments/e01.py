@@ -54,8 +54,8 @@ config = {
 	'adversarial':'TPGD',
 	'adversarial_config':{
 		'eps':0.3,
-		'steps':7,
 		'alpha':0.1,
+		'steps':7,
 	},
 	'device':'cuda',
 	'validation_step':'augmented_step',
