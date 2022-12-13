@@ -14,14 +14,19 @@ config = {
 	'batch_size':128,
 	'optimizer':'SGD',
 	'optimizer_config':{
-		'lr':1e-2,
+		'lr':1e-4,
 		'momentum':0.9,
 		'weight_decay':2e-4,
 	},
-	'scheduler':'MultiStepLR',
+	# 'scheduler':'MultiStepLR',
+	# 'scheduler_config':{
+	# 	'milestones':[75,90,100],
+	# 	'gamma':0.1
+	# },
+	'scheduler':'StepLR',
 	'scheduler_config':{
-		'milestones':[75,90,100],
-		'gamma':0.1
+		'step_size':15,
+		'gamma':0.1,
 	},
 	# 'noise_level':0.6,
 	'sample_':'sample_uniform_linf_with_clamp',
@@ -56,6 +61,7 @@ config = {
 
 train_set, val_set, channel = misc.auto_sets(config['dataset'])
 m = nets.auto_net(channel).cuda()
+m.load_state_dict(torch.load('checkpoints_/Dec12_22-52-07_ruihan-MS-7B23_SVHN_ResNet_trades_step_090.pt'))
 
 writer = SummaryWriter(comment = f"_{config['dataset']}_{m._get_name()}_{config['training_step']}")
 # writer.add_hparams(config, {})
@@ -77,7 +83,7 @@ for k, v in config.items():
 		config[k] = vars(torchattacks)[v](m, **config[k+'_config'])
 		
 
-for epoch in range(300):
+for epoch in range(100, 300):
 	iterate.train(m,
 		train_set = train_set,
 		epoch = epoch,
