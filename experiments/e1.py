@@ -38,8 +38,8 @@ config = {
 	'attack':'PGD',
 	'attack_config':{
 		'eps':0.3,
-		'alpha':0.1,
-		'steps':10,
+		'alpha':1/255,
+		'steps':400,
 		'random_start':False,
 	},
 	# 'attack':'PGDL2',
