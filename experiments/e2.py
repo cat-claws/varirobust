@@ -14,20 +14,20 @@ config = {
 	'batch_size':128,
 	'optimizer':'SGD',
 	'optimizer_config':{
-		'lr':1e-4,
-		'momentum':0.9,
+		'lr':1e-2,
+		'momentum':0.5,
 		'weight_decay':2e-4,
 	},
-	# 'scheduler':'MultiStepLR',
-	# 'scheduler_config':{
-	# 	'milestones':[75,90,100],
-	# 	'gamma':0.1
-	# },
-	'scheduler':'StepLR',
+	'scheduler':'MultiStepLR',
 	'scheduler_config':{
-		'step_size':15,
-		'gamma':0.1,
+		'milestones':[75,90,105, 120, 135, 150],
+		'gamma':0.1
 	},
+# 	'scheduler':'StepLR',
+# 	'scheduler_config':{
+# 		'step_size':15,
+# 		'gamma':0.1,
+# 	},
 	# 'noise_level':0.6,
 	'sample_':'sample_uniform_linf_with_clamp',
 	'num':50,	
