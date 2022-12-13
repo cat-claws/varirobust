@@ -83,7 +83,7 @@ for k, v in config.items():
 		config[k] = vars(torchattacks)[v](m, **config[k+'_config'])
 		
 
-for epoch in range(100, 300):
+for epoch in range(300):
 	iterate.train(m,
 		train_set = train_set,
 		epoch = epoch,
