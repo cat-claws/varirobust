@@ -10,7 +10,7 @@ from utils import nets, datasets, iterate, misc
 
 config = {
 	'dataset':'MNIST',
-	'training_step':'trades_step',
+	'training_step':'our_step',
 	'beta':1,
 	'batch_size':32,
 	# 'optimizer':'SGD',
@@ -39,8 +39,8 @@ config = {
 	'attack':'PGD',
 	'attack_config':{
 		'eps':0.3,
-		'alpha':1/255,
-		'steps':400,
+		'alpha':0.1,
+		'steps':10,
 		'random_start':False,
 	},
 	# 'attack':'PGDL2',
@@ -65,6 +65,8 @@ config = {
 
 train_set, val_set, channel = misc.auto_sets(config['dataset'])
 m = nets.auto_net(channel).cuda()
+m.load_state_dict(torch.load('checkpoints/Dec11_09-30-54_vm1_MNIST_ConvNet_trades_step_220.pt'))
+
 
 writer = SummaryWriter(comment = f"_{config['dataset']}_{m._get_name()}_{config['training_step']}")
 # writer.add_hparams(config, {})
