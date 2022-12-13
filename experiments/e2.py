@@ -16,7 +16,7 @@ config = {
 	'optimizer':'SGD',
 	'optimizer_config':{
 		'lr':1e-2,
-		'momentum':0.5,
+		'momentum':0.0,
 		'weight_decay':2e-4,
 	},
 	'scheduler':'MultiStepLR',
