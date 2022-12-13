@@ -14,7 +14,7 @@ config = {
 	'batch_size':128,
 	'optimizer':'SGD',
 	'optimizer_config':{
-		'lr':1,
+		'lr':1e-2,
 		'momentum':0.9,
 		'weight_decay':2e-4,
 	},
