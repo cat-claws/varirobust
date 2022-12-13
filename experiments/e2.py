@@ -12,7 +12,7 @@ config = {
 	'dataset':'SVHN',
 	'training_step':'our_step',
 	'beta':6,
-	'batch_size':128,
+	'batch_size':8,
 	'optimizer':'SGD',
 	'optimizer_config':{
 		'lr':1e-2,
