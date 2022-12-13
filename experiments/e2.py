@@ -47,7 +47,7 @@ config = {
 	# 	'steps':40,
 	# 	'random_start':True,
 	# }
-	'microbatch_size':10000,
+	'microbatch_size':1000,
 	'threshold':0.95,
 	'adversarial':'TPGD',
 	'adversarial_config':{
