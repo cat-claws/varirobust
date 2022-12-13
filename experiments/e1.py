@@ -10,7 +10,7 @@ from utils import nets, datasets, iterate, misc
 
 config = {
 	'dataset':'MNIST',
-	'training_step':'our_step',
+	'training_step':'trades_step',
 	'batch_size':32,
 	# 'optimizer':'SGD',
 	# 'optimizer_config':{
@@ -38,8 +38,8 @@ config = {
 	'attack':'PGD',
 	'attack_config':{
 		'eps':0.3,
-		'alpha':0.1,
-		'steps':10,
+		'alpha':1/255,
+		'steps':400,
 		'random_start':False,
 	},
 	# 'attack':'PGDL2',
