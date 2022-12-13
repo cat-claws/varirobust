@@ -11,6 +11,7 @@ from utils import nets, datasets, iterate, misc
 config = {
 	'dataset':'SVHN',
 	'training_step':'trades_step',
+	'beta':6,
 	'batch_size':128,
 	'optimizer':'SGD',
 	'optimizer_config':{
@@ -61,7 +62,7 @@ config = {
 
 train_set, val_set, channel = misc.auto_sets(config['dataset'])
 m = nets.auto_net(channel).cuda()
-m.load_state_dict(torch.load('checkpoints_/Dec12_22-52-07_ruihan-MS-7B23_SVHN_ResNet_trades_step_090.pt'))
+# m.load_state_dict(torch.load('checkpoints_/Dec12_22-52-07_ruihan-MS-7B23_SVHN_ResNet_trades_step_090.pt'))
 
 writer = SummaryWriter(comment = f"_{config['dataset']}_{m._get_name()}_{config['training_step']}")
 # writer.add_hparams(config, {})
