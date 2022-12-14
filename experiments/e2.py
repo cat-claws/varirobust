@@ -11,8 +11,8 @@ from utils import nets, datasets, iterate, misc
 config = {
 	'dataset':'SVHN',
 	'training_step':'our_step',
-	'beta':6,
-	'batch_size':8,
+	'z':6,
+	'batch_size':32,
 	'optimizer':'SGD',
 	'optimizer_config':{
 		'lr':1e-2,

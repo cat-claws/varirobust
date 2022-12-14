@@ -11,7 +11,7 @@ from utils import nets, datasets, iterate, misc
 config = {
 	'dataset':'MNIST',
 	'training_step':'our_step',
-	'beta':1,
+	'z':1,
 	'batch_size':32,
 	# 'optimizer':'SGD',
 	# 'optimizer_config':{

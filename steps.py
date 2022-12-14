@@ -81,7 +81,7 @@ def our_step(net, batch, batch_idx, **kw):
 	sigma = torch.std(loss_[:, 1:], dim = 1)
 	mu = torch.mean(loss_[:, 1:], dim = 1)
 
-	loss = (mu + sigma).sum()
+	loss = (mu + kw['z'] * sigma).sum()
 
 	with torch.no_grad():
 		_, max_labels_ = scores_.max(-1)
@@ -114,7 +114,7 @@ def trades_step(net, batch, batch_idx, **kw):
 	inputs_ = kw['atk'](inputs, labels)
 
 	scores = net(inputs_)
-	loss = F.cross_entropy(scores, labels, reduction = 'sum') + kw['beta'] * F.kl_div(torch.log_softmax(scores, dim=1), F.softmax(net(inputs), dim=1), reduction='batchmean') * inputs.shape[0]
+	loss = F.cross_entropy(scores, labels, reduction = 'sum') + kw['z'] * F.kl_div(torch.log_softmax(scores, dim=1), F.softmax(net(inputs), dim=1), reduction='batchmean') * inputs.shape[0]
 
 	max_scores, max_labels = scores.max(1)
 	correct = (max_labels == labels).sum()
