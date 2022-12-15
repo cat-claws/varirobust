@@ -78,8 +78,8 @@ def our_step(net, batch, batch_idx, **kw):
 
 	loss_ = F.cross_entropy(scores_.permute(1, 2, 0), labels.unsqueeze(1).expand(-1, kw['num'] + 1), reduction = 'none')
 
-	sigma = torch.std(loss_[:, 1:], dim = 1)
-	mu = torch.mean(loss_[:, 1:], dim = 1)
+	sigma = torch.std(loss_[:, 0:], dim = 1)
+	mu = torch.mean(loss_[:, 0:], dim = 1)
 
 	loss = (mu + kw['z'] * sigma).sum()
 
