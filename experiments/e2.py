@@ -10,7 +10,7 @@ from utils import nets, datasets, iterate, misc
 
 config = {
 	'dataset':'SVHN',
-	'training_step':'ordinary_step',
+	'training_step':'our_step',
 	'z':6,
 	'batch_size':32,
 	'optimizer':'SGD',
