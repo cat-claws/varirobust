@@ -10,12 +10,12 @@ from utils import nets, datasets, iterate, misc
 
 config = {
 	'dataset':'SVHN',
-	'training_step':'our_step',
+	'training_step':'ordinary_step',
 	'z':6,
 	'batch_size':32,
 	'optimizer':'SGD',
 	'optimizer_config':{
-		'lr':1e-2,
+		'lr':1e-3,
 		'momentum':0.5,
 		'weight_decay':2e-4,
 	},
@@ -47,7 +47,7 @@ config = {
 	# 	'steps':40,
 	# 	'random_start':True,
 	# }
-	'microbatch_size':1000,
+	'microbatch_size':10000,
 	'threshold':0.95,
 	'adversarial':'TPGD',
 	'adversarial_config':{
