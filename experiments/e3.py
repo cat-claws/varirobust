@@ -85,13 +85,14 @@ for k, v in config.items():
 		
 
 for epoch in range(300):
-	iterate.train(m,
-		train_set = train_set,
-		epoch = epoch,
-		writer = writer,
-		atk = config['adversarial'],
-		**config
-	)
+	if epoch > 0:
+		iterate.train(m,
+			train_set = train_set,
+			epoch = epoch,
+			writer = writer,
+			atk = config['adversarial'],
+			**config
+		)
 
 	iterate.attack(m,
 		val_set = val_set,

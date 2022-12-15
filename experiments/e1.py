@@ -65,7 +65,7 @@ config = {
 
 train_set, val_set, channel = misc.auto_sets(config['dataset'])
 m = nets.auto_net(channel).cuda()
-m.load_state_dict(torch.load('checkpoints/Dec11_09-30-54_vm1_MNIST_ConvNet_trades_step_220.pt'))
+# m.load_state_dict(torch.load('checkpoints/Dec11_09-30-54_vm1_MNIST_ConvNet_trades_step_220.pt'))
 
 
 writer = SummaryWriter(comment = f"_{config['dataset']}_{m._get_name()}_{config['training_step']}")
@@ -89,13 +89,14 @@ for k, v in config.items():
 		
 
 for epoch in range(300):
-	iterate.train(m,
-		train_set = train_set,
-		epoch = epoch,
-		writer = writer,
-		atk = config['adversarial'],
-		**config
-	)
+	if epoch > 0:
+		iterate.train(m,
+			train_set = train_set,
+			epoch = epoch,
+			writer = writer,
+			atk = config['adversarial'],
+			**config
+		)
 
 	iterate.attack(m,
 		val_set = val_set,
