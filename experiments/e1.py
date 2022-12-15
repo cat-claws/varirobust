@@ -65,7 +65,7 @@ config = {
 
 train_set, val_set, channel = misc.auto_sets(config['dataset'])
 m = nets.auto_net(channel).cuda()
-# m.load_state_dict(torch.load('checkpoints/Dec11_09-30-54_vm1_MNIST_ConvNet_trades_step_220.pt'))
+# m.load_state_dict(torch.load('checkpoints/Dec11_16-08-12_vm1_MNIST_ConvNet_our_step_269.pt'))
 
 
 writer = SummaryWriter(comment = f"_{config['dataset']}_{m._get_name()}_{config['training_step']}")
