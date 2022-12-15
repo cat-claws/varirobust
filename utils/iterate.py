@@ -19,7 +19,8 @@ def train(net, training_step, train_set, optimizer, **kw):
 	outputs = {k: sum([dic[k] for dic in outputs]) for k in outputs[0]}
 	for k, v in outputs.items():
 		kw['writer'].add_scalar("Epoch-" + k + "/train", v / len(train_set), kw['epoch'])
-
+	
+	kw['scheduler'].step()
 	return net
 
 
