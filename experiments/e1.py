@@ -106,7 +106,6 @@ for epoch in range(300):
 		**config
 	)
 
-	config['scheduler'].step()
 	torch.save(m.state_dict(), "checkpoints_/" + writer.log_dir.split('/')[-1] + f"_{epoch:03}.pt")
 
 print(m)
