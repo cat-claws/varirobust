@@ -89,7 +89,7 @@ for k, v in config.items():
 		
 
 for epoch in range(300):
-	if i > 0:
+	if epoch > 0:
 		iterate.train(m,
 			train_set = train_set,
 			epoch = epoch,
