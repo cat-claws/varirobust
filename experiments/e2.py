@@ -31,7 +31,7 @@ config = {
 # 	},
 	# 'noise_level':0.6,
 	'sample_':'sample_uniform_linf_with_clamp',
-	'num':50,	
+	'num':150,	
 	'eps':8/255,
 	'attack':'PGD',
 	'attack_config':{
