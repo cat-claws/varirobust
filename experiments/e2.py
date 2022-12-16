@@ -11,11 +11,11 @@ from utils import nets, datasets, iterate, misc
 config = {
 	'dataset':'SVHN',
 	'training_step':'our_step',
-	'z':6,
-	'batch_size':32,
+	'z':10,
+	'batch_size':128,
 	'optimizer':'SGD',
 	'optimizer_config':{
-		'lr':1e-3,
+		'lr':1e-2,
 		'momentum':0.5,
 		'weight_decay':2e-4,
 	},
