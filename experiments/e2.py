@@ -11,7 +11,7 @@ from utils import nets, datasets, iterate, misc
 config = {
 	'dataset':'SVHN',
 	'training_step':'our_step',
-	'z':16,
+	'z':1,
 	'batch_size':64,
 	'optimizer':'Adadelta',
 	'optimizer_config':{
@@ -64,7 +64,7 @@ train_set, val_set, channel = misc.auto_sets(config['dataset'])
 # m = nets.auto_net(channel).cuda()
 # m.load_state_dict(torch.load('checkpoints/Dec14_02-53-38_ruihan-MS-7B23_SVHN_ResNet_trades_step_005.pt'))
 import pytorchcv.model_provider
-m = pytorchcv.model_provider.get_model(f"resnet20_{config['dataset'].lower()}", pretrained=True).to(config['device'])
+m = pytorchcv.model_provider.get_model(f"resnet20_{config['dataset'].lower()}", pretrained=False).to(config['device'])
 
 writer = SummaryWriter(comment = f"_{config['dataset']}_{m._get_name()}_{config['training_step']}")
 # writer.add_hparams(config, {})
