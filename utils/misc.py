@@ -49,11 +49,11 @@ def forward_micro(net, xs, microbatch_size):
 def weight_init(net):
 	if isinstance(net, nn.Conv2d):
 		nn.init.xavier_normal_(net.weight, gain=nn.init.calculate_gain('relu'))
-		if net.bias:
+		if net.bias is not None:
 			nn.init.zeros_(net.bias)
 	elif isinstance(net, nn.Linear):
 		nn.init.xavier_normal_(net.weight)
-		if net.bias:
+		if net.bias is not None:
 			nn.init.zeros_(net.bias)
 
 def plot_trend(mat, title, xticks, yticks, xlabel, ylabel):
