@@ -32,7 +32,11 @@ def augmented_step(net, batch, batch_idx, **kw):
 	inputs, labels = inputs.to(kw['device']), labels.to(kw['device'])
 
 	scores_, inputs_ = forward_samples(net, inputs, **kw)
-	loss = F.cross_entropy(scores_.permute(1, 2, 0), labels.unsqueeze(1).expand(-1, kw['num'] + 1), reduction = 'mean') * inputs.shape[0]
+	loss_ = F.cross_entropy(scores_.permute(1, 2, 0), labels.unsqueeze(1).expand(-1, kw['num'] + 1), reduction = 'none')
+	
+	sigma = torch.std(loss_[:, 1:], dim = 1)
+	mu = torch.mean(loss_[:, 1:], dim = 1)
+	loss = loss_[:, 0]
 
 	with torch.no_grad():
 		_, max_labels_ = scores_.max(-1)
@@ -44,7 +48,7 @@ def augmented_step(net, batch, batch_idx, **kw):
 		augmented_accuracy = correct_.sum()
 		quantile_accuracy = (correct_ > kw['threshold']).sum().float()
 
-	return {'loss':loss, 'correct':correct, 'augmented':augmented_accuracy, 'quantile':quantile_accuracy}
+	return {'loss':loss, 'correct':correct, 'augmented':augmented_accuracy, 'quantile':quantile_accuracy, 'mu':mu.sum(), 'sigma':sigma.sum()}
 
 
 def prl_step(net, batch, batch_idx, **kw):# dimension problem
