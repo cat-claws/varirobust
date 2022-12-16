@@ -11,18 +11,18 @@ from utils import nets, datasets, iterate, misc
 config = {
 	'dataset':'SVHN',
 	'training_step':'our_step',
-	'z':10,
+	'z':16,
 	'batch_size':128,
-	'optimizer':'SGD',
+	'optimizer':'Adadelta',
 	'optimizer_config':{
-		'lr':1e-2,
-		'momentum':0.5,
-		'weight_decay':2e-4,
+		'lr':1,
+# 		'momentum':0.5,
+# 		'weight_decay':2e-4,
 	},
 	'scheduler':'MultiStepLR',
 	'scheduler_config':{
 		'milestones':[75,90,105, 120, 135, 150],
-		'gamma':0.1
+		'gamma':1
 	},
 # 	'scheduler':'StepLR',
 # 	'scheduler_config':{
