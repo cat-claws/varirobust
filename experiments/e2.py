@@ -12,7 +12,7 @@ config = {
 	'dataset':'SVHN',
 	'training_step':'our_step',
 	'z':1,
-	'batch_size':128,
+	'batch_size':32,
 	'optimizer':'Adadelta',
 	'optimizer_config':{
 		'lr':1,
