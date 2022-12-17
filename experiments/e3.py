@@ -11,24 +11,24 @@ from utils import nets, datasets, iterate, misc
 config = {
 	'dataset':'CIFAR10',
 	'training_step':'trades_step',
-	'z':16,
+	'z':6,
 	'batch_size':128,
-	'optimizer':'Adam',
+	'optimizer':'SGD',
 	'optimizer_config':{
-		'lr':1e-3,
-# 		'momentum':0.9,
-# 		'weight_decay':2e-4,
+		'lr':1,
+		'momentum':0.9,
+		'weight_decay':3.5e-4,
 	},
-	'scheduler':'MultiStepLR',
-	'scheduler_config':{
-		'milestones':[75,90,105, 120, 135, 150],
-		'gamma':1
-	},
-# 	'scheduler':'StepLR',
+# 	'scheduler':'MultiStepLR',
 # 	'scheduler_config':{
-# 		'step_size':15,
-# 		'gamma':0.1,
+# 		'milestones':[75,90,105, 120, 135, 150],
+# 		'gamma':1
 # 	},
+	'scheduler':'StepLR',
+	'scheduler_config':{
+		'step_size':15,
+		'gamma':0.1,
+	},
 	# 'noise_level':0.6,
 	'sample_':'sample_uniform_linf_with_clamp',
 	'num':50,	
@@ -36,7 +36,7 @@ config = {
 	'attack':'PGD',
 	'attack_config':{
 		'eps':8/255,
-		'alpha':0.003,
+		'alpha':1/255,
 		'steps':20,
 		'random_start':False,
 	},
@@ -61,11 +61,12 @@ config = {
 }
 
 train_set, val_set, channel = misc.auto_sets(config['dataset'])
-m = nets.auto_net(channel).cuda()
+# m = nets.auto_net(channel).cuda()
 # m.load_state_dict(torch.load('checkpoints_/Dec12_22-52-07_ruihan-MS-7B23_SVHN_ResNet_trades_step_090.pt'))
-m.load_state_dict(torch.load('checkpoints/ResNet18_model_MART.pt'))
-# import pytorchcv.model_provider
-# m = pytorchcv.model_provider.get_model(f"resnet20_{config['dataset'].lower()}", pretrained=True).to(config['device'])
+# m.load_state_dict(torch.load('checkpoints/ResNet18_model_MART.pt'))
+import pytorchcv.model_provider
+m = pytorchcv.model_provider.get_model(f"resnet20_{config['dataset'].lower()}", pretrained=True).to(config['device'])
+m.apply(misc.weight_init)
 
 writer = SummaryWriter(comment = f"_{config['dataset']}_{m._get_name()}_{config['training_step']}")
 # writer.add_hparams(config, {})

@@ -36,7 +36,7 @@ config = {
 	'attack':'PGD',
 	'attack_config':{
 		'eps':8/255,
-		'alpha':0.003,
+		'alpha':1/255,
 		'steps':20,
 		'random_start':False,
 	},
