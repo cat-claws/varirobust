@@ -13,9 +13,9 @@ config = {
 	'training_step':'trades_step',
 	'z':16,
 	'batch_size':128,
-	'optimizer':'Adadelta',
+	'optimizer':'Adam',
 	'optimizer_config':{
-		'lr':1,
+		'lr':1e-3,
 # 		'momentum':0.9,
 # 		'weight_decay':2e-4,
 	},
