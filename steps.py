@@ -36,7 +36,7 @@ def augmented_step(net, batch, batch_idx, **kw):
 	
 	sigma = torch.std(loss_[:, 1:], dim = 1)
 	mu = torch.mean(loss_[:, 1:], dim = 1)
-	loss = loss_[:, 0]
+	loss = loss_[:, 0].sum()
 
 	with torch.no_grad():
 		_, max_labels_ = scores_.max(-1)
