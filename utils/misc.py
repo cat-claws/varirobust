@@ -13,8 +13,8 @@ import matplotlib.pyplot as plt
 from . import datasets
 
 transforms_3 = transforms.Compose([
-    transforms.RandomCrop(32, padding=4),
-    transforms.RandomHorizontalFlip(),
+#     transforms.RandomCrop(32, padding=4),
+#     transforms.RandomHorizontalFlip(),
     transforms.ToTensor(),
     ])
 
