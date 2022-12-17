@@ -61,11 +61,12 @@ config = {
 }
 
 train_set, val_set, channel = misc.auto_sets(config['dataset'])
-m = nets.auto_net(channel).cuda()
+# m = nets.auto_net(channel).cuda()
 # m.load_state_dict(torch.load('checkpoints_/Dec12_22-52-07_ruihan-MS-7B23_SVHN_ResNet_trades_step_090.pt'))
-m.load_state_dict(torch.load('checkpoints/ResNet18_model_MART.pt'))
-# import pytorchcv.model_provider
-# m = pytorchcv.model_provider.get_model(f"resnet20_{config['dataset'].lower()}", pretrained=True).to(config['device'])
+# m.load_state_dict(torch.load('checkpoints/ResNet18_model_MART.pt'))
+import pytorchcv.model_provider
+m = pytorchcv.model_provider.get_model(f"resnet20_{config['dataset'].lower()}", pretrained=True).to(config['device'])
+m.apply(misc.weight_init)
 
 writer = SummaryWriter(comment = f"_{config['dataset']}_{m._get_name()}_{config['training_step']}")
 # writer.add_hparams(config, {})
