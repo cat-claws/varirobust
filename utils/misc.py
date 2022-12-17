@@ -46,10 +46,15 @@ def forward_micro(net, xs, microbatch_size):
     outputs = torch.cat(outputs, dim = 0).view(d0, d1, -1)
     return outputs
 
-def weight_reset(net):
-	reset_parameters = getattr(net, "reset_parameters", None)
-	if callable(reset_parameters):
-		m.reset_parameters()
+def weight_init(net):
+	if isinstance(net, nn.Conv2d):
+		nn.init.xavier_normal_(net.weight, gain=nn.init.calculate_gain('relu'))
+		if net.bias is not None:
+			nn.init.zeros_(net.bias)
+	elif isinstance(net, nn.Linear):
+		nn.init.xavier_normal_(net.weight)
+		if net.bias is not None:
+			nn.init.zeros_(net.bias)
 
 def plot_trend(mat, title, xticks, yticks, xlabel, ylabel):
     figure = plt.figure(figsize=(10, 8))
