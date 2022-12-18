@@ -10,7 +10,7 @@ from utils import nets, datasets, iterate, misc
 
 config = {
 	'dataset':'CIFAR10',
-	'training_step':'trades_step',
+	'training_step':'our_step',
 	'z':6,
 	'batch_size':128,
 	'optimizer':'SGD',
