@@ -65,7 +65,7 @@ m = nets.auto_net(channel).cuda()
 # m.load_state_dict(torch.load('checkpoints_/Dec12_22-52-07_ruihan-MS-7B23_SVHN_ResNet_trades_step_090.pt'))
 m.load_state_dict(torch.load('checkpoints/ResNet18_model_MART.pt'))
 m.conv1.apply(misc.weight_init)
-m.layer1.1.apply(misc.weight_init)
+m.layer1.apply(misc.weight_init)
 for name, param in m.named_parameters():                
 	if not (name.startswith('conv1.') or name.startswith('layer1.')):
 		param.requires_grad = False
