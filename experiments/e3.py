@@ -12,7 +12,7 @@ config = {
 	'dataset':'CIFAR10',
 	'training_step':'our_step',
 	'z':6,
-	'batch_size':128,
+	'batch_size':32,
 	'optimizer':'SGD',
 	'optimizer_config':{
 		'lr':1,
