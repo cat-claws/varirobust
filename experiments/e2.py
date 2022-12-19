@@ -64,10 +64,14 @@ train_set, val_set, channel = misc.auto_sets(config['dataset'])
 # m = nets.auto_net(channel).cuda()
 # m.load_state_dict(torch.load('checkpoints/Dec14_02-53-38_ruihan-MS-7B23_SVHN_ResNet_trades_step_005.pt'))
 import pytorchcv.model_provider
-m = pytorchcv.model_provider.get_model(f"resnet20_{config['dataset'].lower()}", pretrained=False).to(config['device'])
+m = pytorchcv.model_provider.get_model(f"resnet20_{config['dataset'].lower()}", pretrained=True).to(config['device'])
 m.apply(misc.weight_init)
+m.features[0:2].apply(misc.weight_init)
+for name, param in m.named_parameters():                
+	if not (name.startswith('features.init_block.') or name.startswith('features.stage1.')):
+		param.requires_grad = False
 
-writer = SummaryWriter(comment = f"_{config['dataset']}_{m._get_name()}_{config['training_step']}")
+		writer = SummaryWriter(comment = f"_{config['dataset']}_{m._get_name()}_{config['training_step']}")
 # writer.add_hparams(config, {})
 
 import json
