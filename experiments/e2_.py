@@ -19,7 +19,7 @@ args = parser.parse_args()
 import pandas as pd
 
 df = pd.read_json("checkpoints/configs.json", lines = True)
-config = next(iter((df.loc[df['run'] == args.run]).to_dict('index').values()))
+config = (df.loc[df['run'] == args.run]).to_dict('records')[0]
 config.update({
 	'num':5,	
 # 	'attack':'PGD',
@@ -29,39 +29,43 @@ config.update({
 # 		'steps':20,
 # 		'random_start':False,
 # 	},
+"validation_step": "ordinary_step",
 })
+import json
 print(json.dumps(config, indent=4))
 
 
 
 _, val_set, channel = misc.auto_sets(config['dataset'])
 
+		
 if 'CIFARResNet' not in config['run']:
-	m = SE(nets.auto_net(channel).cuda(), **config)
+	m_ = nets.auto_net(channel).cuda()
 else:
 	import pytorchcv.model_provider
-	m = SE(pytorchcv.model_provider.get_model(f"resnet20_{config['dataset'].lower()}", pretrained=False).to(config['device']), **config)
-
-m.net.load_state_dict(torch.load("checkpoints_/" + config['run'] + f"_{0:03}.pt"))
-
-writer = SummaryWriter(comment = f"_SE_{config['dataset']}_{m._get_name()}_{config['training_step']}")
-# writer.add_hparams(config, {})
-
-
+	m_ = pytorchcv.model_provider.get_model(f"resnet20_{config['dataset'].lower()}", pretrained=False).to(config['device'])
 
 for k, v in config.items():
 	if k.endswith('_step'):
 		config[k] = vars(steps)[v]
 	elif k == 'sample_':
 		config[k] = vars(sampling)[v]
-	elif k == 'optimizer':
-		config[k] = vars(torch.optim)[v](m.parameters(), **config[k+'_config'])
-		config['scheduler'] = vars(torch.optim.lr_scheduler)[config['scheduler']](config[k], **config['scheduler_config'])
+		m = SE(m_, **config)
+	# elif k == 'optimizer':
+	# 	config[k] = vars(torch.optim)[v](m.parameters(), **config[k+'_config'])
+	# 	config['scheduler'] = vars(torch.optim.lr_scheduler)[config['scheduler']](config[k], **config['scheduler_config'])
 	elif k == 'adversarial' or k == 'attack':
 		config[k] = vars(torchattacks)[v](m, **config[k+'_config'])
-		
 
-for epoch in range(300):
+m.net.load_state_dict(torch.load("checkpoints_/" + config['run'] + f"_{0:03}.pt"))
+writer = SummaryWriter(comment = f"_SE_{config['run']}")
+# writer.add_hparams(config, {})
+
+
+
+
+
+for epoch in range(10, 300, 10):
 
 	m.net.load_state_dict(torch.load("checkpoints_/" + config['run'] + f"_{epoch:03}.pt"))
 

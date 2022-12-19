@@ -24,5 +24,5 @@ class SE(torch.nn.Module): # sample ensemble
 		self.kw = kw
 		
 	def forward(self, x):
-		outputs = forward_samples(self.net, x, **self.kw)
+		outputs, _ = forward_samples(self.net, x, **self.kw)
 		return torch.nn.functional.normalize(outputs, p=1, dim=1).mean(dim = 0)

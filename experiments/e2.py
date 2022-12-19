@@ -16,19 +16,19 @@ config = {
 	'optimizer':'Adadelta',
 	'optimizer_config':{
 		'lr':1,
-# 		'momentum':0.5,
-# 		'weight_decay':2e-4,
+		# 'momentum':0.5,
+		# 'weight_decay':2e-4,
 	},
 	'scheduler':'MultiStepLR',
 	'scheduler_config':{
 		'milestones':[75,90,105, 120, 135, 150],
 		'gamma':1
 	},
-# 	'scheduler':'StepLR',
-# 	'scheduler_config':{
-# 		'step_size':15,
-# 		'gamma':0.1,
-# 	},
+	# 'scheduler':'StepLR',
+	# 'scheduler_config':{
+	# 	'step_size':15,
+	# 	'gamma':0.1,
+	# },
 	# 'noise_level':0.6,
 	'sample_':'sample_uniform_linf_with_clamp',
 	'num':50,	
@@ -90,7 +90,7 @@ for k, v in config.items():
 for epoch in range(300):
 	if epoch > 0:
 		iterate.train(m,
-			train_set = train_set,
+			train_set = val_set,
 			epoch = epoch,
 			writer = writer,
 			atk = config['adversarial'],
