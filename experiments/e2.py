@@ -71,7 +71,7 @@ for name, param in m.named_parameters():
 	if not (name.startswith('features.init_block.') or name.startswith('features.stage1.')):
 		param.requires_grad = False
 
-		writer = SummaryWriter(comment = f"_{config['dataset']}_{m._get_name()}_{config['training_step']}")
+writer = SummaryWriter(comment = f"_{config['dataset']}_{m._get_name()}_{config['training_step']}")
 # writer.add_hparams(config, {})
 
 import json
