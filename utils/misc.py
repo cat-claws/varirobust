@@ -46,15 +46,28 @@ def forward_micro(net, xs, microbatch_size):
     outputs = torch.cat(outputs, dim = 0).view(d0, d1, -1)
     return outputs
 
-def weight_init(net):
-	if isinstance(net, nn.Conv2d):
-		nn.init.xavier_normal_(net.weight, gain=nn.init.calculate_gain('relu'))
-		if net.bias is not None:
-			nn.init.zeros_(net.bias)
-	elif isinstance(net, nn.Linear):
-		nn.init.xavier_normal_(net.weight)
-		if net.bias is not None:
-			nn.init.zeros_(net.bias)
+def xavier_init(net):
+    if isinstance(net, nn.Conv2d):
+        nn.init.xavier_normal_(net.weight, gain=nn.init.calculate_gain('relu'))
+        if net.bias is not None:
+            nn.init.zeros_(net.bias)
+    elif isinstance(net, nn.Linear):
+        nn.init.xavier_normal_(net.weight)
+        if net.bias is not None:
+            nn.init.zeros_(net.bias)
+    # elif isinstance(net, nn.BatchNorm2d):
+    #     net.weight.data.fill_(1)
+    #     net.bias.data.zero_()
+
+
+def kaiming_init(model):
+    for name, param in model.named_parameters():
+        if "bias" in name:
+            param.data.fill_(0)
+        elif len(param.shape) < 2:
+            param.data.fill_(1)
+        else:
+            nn.init.kaiming_normal_(param)
 
 def plot_trend(mat, title, xticks, yticks, xlabel, ylabel):
     figure = plt.figure(figsize=(10, 8))

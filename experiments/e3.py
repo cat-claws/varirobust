@@ -12,6 +12,9 @@ config = {
 	'dataset':'CIFAR10',
 	'training_step':'our_step',
 	'z':6,
+	# 'checkpoint':'checkpoints_/Dec19_15-44-50_ruihan-MS-7B23_CIFAR10_ResNet_our_step_000.pt',
+	'checkpoint':'checkpoints/ResNet18_model_MART.pt',
+	'initialization':'xavier_init',
 	'batch_size':32,
 	'optimizer':'SGD',
 	'optimizer_config':{
@@ -62,18 +65,17 @@ config = {
 
 train_set, val_set, channel = misc.auto_sets(config['dataset'])
 m = nets.auto_net(channel).cuda()
-m.load_state_dict(torch.load('checkpoints_/Dec27_04-15-57_ruihan-MS-7B23_CIFAR10_ResNet_our_step_067.pt'))
-# m.load_state_dict(torch.load('checkpoints/ResNet18_model_MART.pt'))
 
-# dic = {k:v for k,v in torch.load('checkpoints/ResNet18_model_TRADES.pt').items() if k in m.state_dict()}
-# m.load_state_dict(dic)
+if 'checkpoint' in config:
+	m.load_state_dict({k:v for k,v in torch.load(config['checkpoint']).items() if k in m.state_dict()})
+if 'initialization' in config:
+	m.conv1.apply(vars(misc)[config['initialization']])
+	m.layer1.apply(vars(misc)[config['initialization']])
 
-
-# m.conv1.apply(misc.weight_init)
-# m.layer1.apply(misc.weight_init)
-# for name, param in m.named_parameters():                
-# 	if not (name.startswith('conv1.') or name.startswith('layer1.')):
-# 		param.requires_grad = False
+# m.apply(misc.weight_init)
+for name, param in m.named_parameters():                
+	if not (name.startswith('conv1.') or name.startswith('layer1.')):
+		param.requires_grad = False
 
 import pytorchcv.model_provider
 # m = pytorchcv.model_provider.get_model(f"resnet20_{config['dataset'].lower()}", pretrained=True).to(config['device'])
