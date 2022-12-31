@@ -10,26 +10,33 @@ from utils import nets, datasets, iterate, misc
 
 config = {
 	'dataset':'CIFAR10',
-	'training_step':'our_step',
+	'training_step':'rand_step',
 	'z':6,
-	'batch_size':32,
+	# 'checkpoint':'checkpoints_/Dec19_15-44-50_ruihan-MS-7B23_CIFAR10_ResNet_our_step_000.pt',
+	# 'checkpoint':'checkpoints/ResNet18_model_MART.pt',
+	# 'initialization':'xavier_init',
+	'batch_size':128,
 	'optimizer':'SGD',
 	'optimizer_config':{
-		'lr':1,
+		'lr':1e-2,
 		'momentum':0.9,
-		'weight_decay':3.5e-4,
+		'weight_decay':5e-4,
 	},
 	# 'scheduler':'MultiStepLR',
 	# 'scheduler_config':{
 	# 	'milestones':[75,90,105, 120, 135, 150],
 	# 	'gamma':0.1
 	# },
-	'scheduler':'StepLR',
+	# 'scheduler':'StepLR',
+	# 'scheduler_config':{
+	# 	'step_size':15,
+	# 	'gamma':1,
+	# },
+	'scheduler':'CosineAnnealingLR',
 	'scheduler_config':{
-		'step_size':15,
-		'gamma':0.1,
+	'T_max':200,
 	},
-	# 'noise_level':0.6,
+	'noise_level':8/255,
 	'sample_':'sample_uniform_linf_with_clamp',
 	'num':50,	
 	'eps':8/255,
@@ -61,21 +68,25 @@ config = {
 }
 
 train_set, val_set, channel = misc.auto_sets(config['dataset'])
-# m = nets.auto_net(channel).cuda()
-# m.load_state_dict(torch.load('checkpoints_/Dec12_22-52-07_ruihan-MS-7B23_SVHN_ResNet_trades_step_090.pt'))
-# m.load_state_dict(torch.load('checkpoints/ResNet18_model_MART.pt'))
-# m.conv1.apply(misc.weight_init)
-# m.layer1.apply(misc.weight_init)
+m = nets.auto_net(channel).cuda()
+
+if 'checkpoint' in config:
+	m.load_state_dict({k:v for k,v in torch.load(config['checkpoint']).items() if k in m.state_dict()})
+if 'initialization' in config:
+	m.conv1.apply(vars(misc)[config['initialization']])
+	m.layer1.apply(vars(misc)[config['initialization']])
+
+# m.apply(misc.weight_init)
 # for name, param in m.named_parameters():                
 # 	if not (name.startswith('conv1.') or name.startswith('layer1.')):
 # 		param.requires_grad = False
 
 import pytorchcv.model_provider
-m = pytorchcv.model_provider.get_model(f"resnet20_{config['dataset'].lower()}", pretrained=True).to(config['device'])
-m.features[0:2].apply(misc.weight_init)
-for name, param in m.named_parameters():                
-	if not (name.startswith('features.init_block.') or name.startswith('features.stage1.')):
-		param.requires_grad = False
+# m = pytorchcv.model_provider.get_model(f"resnet20_{config['dataset'].lower()}", pretrained=True).to(config['device'])
+# m.features[0:2].apply(misc.weight_init)
+# for name, param in m.named_parameters():                
+# 	if not (name.startswith('features.init_block.') or name.startswith('features.stage1.')):
+# 		param.requires_grad = False
 
 writer = SummaryWriter(comment = f"_{config['dataset']}_{m._get_name()}_{config['training_step']}")
 # writer.add_hparams(config, {})
