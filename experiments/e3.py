@@ -12,7 +12,7 @@ config = {
 	'dataset':'CIFAR10',
 	'training_step':'rand_step',
 	'z':6,
-	# 'checkpoint':'checkpoints_/Dec19_15-44-50_ruihan-MS-7B23_CIFAR10_ResNet_our_step_000.pt',
+	'checkpoint':'checkpoints_/Dec31_03-38-03_ruihan-MS-7B23_CIFAR10_ResNet_rand_step_299.pt',
 	# 'checkpoint':'checkpoints/ResNet18_model_MART.pt',
 	# 'initialization':'xavier_init',
 	'batch_size':128,
@@ -108,7 +108,7 @@ for k, v in config.items():
 		config[k] = vars(torchattacks)[v](m, **config[k+'_config'])
 		
 
-for epoch in range(300):
+for epoch in range(1000):
 	if epoch > 0:
 		iterate.train(m,
 			train_set = train_set,
