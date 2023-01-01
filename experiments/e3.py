@@ -12,9 +12,9 @@ config = {
 	'dataset':'CIFAR10',
 	'training_step':'rand_step',
 	'z':6,
-	'checkpoint':'checkpoints_/Dec31_03-38-03_ruihan-MS-7B23_CIFAR10_ResNet_rand_step_299.pt',
+	# 'checkpoint':'checkpoints_/Dec31_03-38-03_ruihan-MS-7B23_CIFAR10_ResNet_rand_step_299.pt',
 	# 'checkpoint':'checkpoints/ResNet18_model_MART.pt',
-	# 'initialization':'xavier_init',
+	# 'initialization':'kaiming_init',
 	'batch_size':128,
 	'optimizer':'SGD',
 	'optimizer_config':{
@@ -36,6 +36,12 @@ config = {
 	'scheduler_config':{
 	'T_max':200,
 	},
+	# 'scheduler':'CyclicLR',
+	# 'scheduler_config':{
+	# 'base_lr':1e-4,
+	# 'max_lr':1e-1,
+	# 'mode':'triangular',
+	# },
 	'noise_level':8/255,
 	'sample_':'sample_uniform_linf_with_clamp',
 	'num':50,	
@@ -73,8 +79,8 @@ m = nets.auto_net(channel).cuda()
 if 'checkpoint' in config:
 	m.load_state_dict({k:v for k,v in torch.load(config['checkpoint']).items() if k in m.state_dict()})
 if 'initialization' in config:
-	m.conv1.apply(vars(misc)[config['initialization']])
-	m.layer1.apply(vars(misc)[config['initialization']])
+	m.apply(vars(misc)[config['initialization']])
+	# m.layer1.apply(vars(misc)[config['initialization']])
 
 # m.apply(misc.weight_init)
 # for name, param in m.named_parameters():                
