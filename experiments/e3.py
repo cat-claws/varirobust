@@ -10,33 +10,33 @@ from utils import nets, datasets, iterate, misc
 
 config = {
 	'dataset':'CIFAR10',
-	'training_step':'rand_step',
+	'training_step':'ordinary_step',
 	'z':6,
-	'checkpoint':'checkpoints_/Dec31_03-38-03_ruihan-MS-7B23_CIFAR10_ResNet_rand_step_299.pt',
+	# 'checkpoint':'checkpoints_/Dec31_03-38-03_ruihan-MS-7B23_CIFAR10_ResNet_rand_step_299.pt',
 	# 'checkpoint':'checkpoints/ResNet18_model_MART.pt',
 	# 'initialization':'xavier_init',
-	'batch_size':128,
+	'batch_size':32,
 	'optimizer':'SGD',
 	'optimizer_config':{
 		'lr':1e-2,
 		'momentum':0.9,
-		'weight_decay':5e-4,
+		'weight_decay':3.5e-4,
 	},
-	# 'scheduler':'MultiStepLR',
-	# 'scheduler_config':{
-	# 	'milestones':[75,90,105, 120, 135, 150],
-	# 	'gamma':0.1
-	# },
+	'scheduler':'MultiStepLR',
+	'scheduler_config':{
+		'milestones':[55, 75, 90, 105, 120, 135, 150],
+		'gamma':0.1
+	},
 	# 'scheduler':'StepLR',
 	# 'scheduler_config':{
 	# 	'step_size':15,
 	# 	'gamma':1,
 	# },
-	'scheduler':'CosineAnnealingLR',
-	'scheduler_config':{
-	'T_max':200,
-	},
-	'noise_level':8/255,
+	# 'scheduler':'CosineAnnealingLR',
+	# 'scheduler_config':{
+	# 'T_max':200,
+	# },
+	# 'noise_level':8/255,
 	'sample_':'sample_uniform_linf_with_clamp',
 	'num':50,	
 	'eps':8/255,
