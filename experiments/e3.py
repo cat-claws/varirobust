@@ -16,7 +16,6 @@ config = {
 	# 'checkpoint':'checkpoints/ResNet18_model_MART.pt',
 	# 'initialization':'xavier_init',
 	'batch_size':32,
-	'optimizer':'SGD',
 	'optimizer_config':{
 		'lr':1e-2,
 		'momentum':0.9,
@@ -32,11 +31,17 @@ config = {
 	# 	'step_size':15,
 	# 	'gamma':1,
 	# },
+	# 'noise_level':8/255,
 	# 'scheduler':'CosineAnnealingLR',
 	# 'scheduler_config':{
 	# 'T_max':200,
 	# },
-	# 'noise_level':8/255,
+	# 'scheduler':'CyclicLR',
+	# 'scheduler_config':{
+	# 'base_lr':1e-4,
+	# 'max_lr':1e-1,
+	# 'mode':'triangular',
+	# },
 	'sample_':'sample_uniform_linf_with_clamp',
 	'num':50,	
 	'eps':8/255,
@@ -73,8 +78,8 @@ m = nets.auto_net(channel).cuda()
 if 'checkpoint' in config:
 	m.load_state_dict({k:v for k,v in torch.load(config['checkpoint']).items() if k in m.state_dict()})
 if 'initialization' in config:
-	m.conv1.apply(vars(misc)[config['initialization']])
-	m.layer1.apply(vars(misc)[config['initialization']])
+	m.apply(vars(misc)[config['initialization']])
+	# m.layer1.apply(vars(misc)[config['initialization']])
 
 # m.apply(misc.weight_init)
 # for name, param in m.named_parameters():                
