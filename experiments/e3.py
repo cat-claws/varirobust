@@ -16,6 +16,7 @@ config = {
 	# 'checkpoint':'checkpoints/ResNet18_model_MART.pt',
 	# 'initialization':'xavier_init',
 	'batch_size':32,
+	'optimizer':'SGD',
 	'optimizer_config':{
 		'lr':1e-2,
 		'momentum':0.9,
