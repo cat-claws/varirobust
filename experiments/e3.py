@@ -52,7 +52,7 @@ config = {
 		'steps':10,
 	},
 	'device':'cuda',
-	'validation_step':'ordinary_step',
+	'validation_step':'augmented_step',
 	'attacked_step':'attacked_step'
 }
 
@@ -107,11 +107,11 @@ for epoch in range(115):
 			**config
 		)
 
-	iterate.validate(m,
+	iterate.attack(m,
 		val_loader = val_loader,
 		epoch = epoch,
 		writer = writer,
-		# atk = config['attack'],
+		atk = config['attack'],
 		**config
 	)
 
