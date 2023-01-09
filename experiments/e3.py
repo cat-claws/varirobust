@@ -12,37 +12,20 @@ config = {
 	'dataset':'CIFAR10',
 	'training_step':'ordinary_step',
 	'z':6,
-	# 'checkpoint':'checkpoints_/Dec31_03-38-03_ruihan-MS-7B23_CIFAR10_ResNet_rand_step_299.pt',
-	# 'checkpoint':'checkpoints/ResNet18_model_MART.pt',
+	# 'checkpoint':'checkpoints/ResNet18_model_ours115.pt',
 	# 'initialization':'xavier_init',
 	'batch_size':32,
 	'optimizer':'SGD',
 	'optimizer_config':{
 		'lr':1e-2,
 		'momentum':0.9,
-		'weight_decay':3.5e-4,
+		'weight_decay':3.5e-3,
 	},
 	'scheduler':'MultiStepLR',
 	'scheduler_config':{
 		'milestones':[55, 75, 90, 105, 120, 135, 150],
 		'gamma':0.1
 	},
-	# 'scheduler':'StepLR',
-	# 'scheduler_config':{
-	# 	'step_size':15,
-	# 	'gamma':1,
-	# },
-	# 'noise_level':8/255,
-	# 'scheduler':'CosineAnnealingLR',
-	# 'scheduler_config':{
-	# 'T_max':200,
-	# },
-	# 'scheduler':'CyclicLR',
-	# 'scheduler_config':{
-	# 'base_lr':1e-4,
-	# 'max_lr':1e-1,
-	# 'mode':'triangular',
-	# },
 	'sample_':'sample_uniform_linf_with_clamp',
 	'num':50,	
 	'eps':8/255,
@@ -69,7 +52,7 @@ config = {
 		'steps':10,
 	},
 	'device':'cuda',
-	'validation_step':'augmented_step',
+	'validation_step':'ordinary_step',
 	'attacked_step':'attacked_step'
 }
 
@@ -80,14 +63,13 @@ if 'checkpoint' in config:
 	m.load_state_dict({k:v for k,v in torch.load(config['checkpoint']).items() if k in m.state_dict()})
 if 'initialization' in config:
 	m.apply(vars(misc)[config['initialization']])
-	# m.layer1.apply(vars(misc)[config['initialization']])
 
 # m.apply(misc.weight_init)
 # for name, param in m.named_parameters():                
 # 	if not (name.startswith('conv1.') or name.startswith('layer1.')):
 # 		param.requires_grad = False
 
-import pytorchcv.model_provider
+# import pytorchcv.model_provider
 # m = pytorchcv.model_provider.get_model(f"resnet20_{config['dataset'].lower()}", pretrained=True).to(config['device'])
 # m.features[0:2].apply(misc.weight_init)
 # for name, param in m.named_parameters():                
@@ -95,7 +77,6 @@ import pytorchcv.model_provider
 # 		param.requires_grad = False
 
 writer = SummaryWriter(comment = f"_{config['dataset']}_{m._get_name()}_{config['training_step']}")
-# writer.add_hparams(config, {})
 
 import json
 with open("checkpoints/configs.json", 'a') as f:
@@ -113,22 +94,24 @@ for k, v in config.items():
 	elif k == 'adversarial' or k == 'attack':
 		config[k] = vars(torchattacks)[v](m, **config[k+'_config'])
 		
+train_loader = torch.utils.data.DataLoader(dataset = train_set, batch_size =  config['batch_size'], num_workers = 2, shuffle = True)
+val_loader = torch.utils.data.DataLoader(dataset = val_set, batch_size =  config['batch_size'], num_workers = 2, shuffle = False)
 
-for epoch in range(1000):
+for epoch in range(115):
 	if epoch > 0:
 		iterate.train(m,
-			train_set = train_set,
+			train_loader = train_loader,
 			epoch = epoch,
 			writer = writer,
-			atk = config['adversarial'],
+			# atk = config['adversarial'],
 			**config
 		)
 
-	iterate.attack(m,
-		val_set = val_set,
+	iterate.validate(m,
+		val_loader = val_loader,
 		epoch = epoch,
 		writer = writer,
-		atk = config['attack'],
+		# atk = config['attack'],
 		**config
 	)
 
@@ -138,7 +121,7 @@ print(m)
 
 outputs = iterate.predict(m,
 	steps.predict_step,
-	val_set = val_set,
+	val_loader = val_loader,
 	**config
 )
 

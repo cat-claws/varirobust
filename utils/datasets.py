@@ -5,11 +5,11 @@ from torchvision import datasets, transforms
 
 def auto_set(name, **kwargs):
     if name == 'MNIST':
-        return MNIST('Dataset', **kwargs)
+        return datasets.MNIST('Dataset', **kwargs)
     elif name == 'SVHN':
-        return SVHN('Dataset', **kwargs)
+        return datasets.SVHN('Dataset', **kwargs)
     elif name == 'CIFAR10':
-        return CIFAR10('Dataset', **kwargs)
+        return datasets.CIFAR10('Dataset', **kwargs)
     else:
         return None
 
