@@ -1,34 +1,29 @@
 import torch
 
-def train(net, training_step, train_set, optimizer, **kw):
-	net = net.to(kw['device'])
+def train(net, training_step, train_loader, optimizer, scheduler, **kw):
 	net.train()
-	train_loader = torch.utils.data.DataLoader(dataset = train_set, batch_size =  kw['batch_size'], num_workers = 2, shuffle = True)
-
 	outputs = []
 	for batch_idx, batch in enumerate(train_loader):
 		optimizer.zero_grad()
 		with torch.autocast(kw['device']):
 			output = training_step(net, batch, batch_idx, **kw)
-			loss = output['loss'] / kw['batch_size']
+		loss = output['loss'] / kw['batch_size']
+		loss.backward()
+		optimizer.step()
 		outputs.append(output)
 		for k, v in output.items():
 			kw['writer'].add_scalar("Step-" + k + "-train", v / kw['batch_size'], kw['epoch'] * len(train_loader) + batch_idx)
-		loss.backward()
-		optimizer.step()
+
 
 	outputs = {k: sum([dic[k] for dic in outputs]) for k in outputs[0]}
 	for k, v in outputs.items():
-		kw['writer'].add_scalar("Epoch-" + k + "/train", v / len(train_set), kw['epoch'])
+		kw['writer'].add_scalar("Epoch-" + k + "/train", v / len(train_loader.dataset), kw['epoch'])
 	
-	kw['scheduler'].step()
-	return net
+	scheduler.step()
 
 
-def validate(net, validation_step, val_set, **kw):
+def validate(net, validation_step, val_loader, **kw):
 	net.eval()
-	val_loader = torch.utils.data.DataLoader(dataset = val_set, batch_size =  kw['batch_size'], num_workers = 2, shuffle = False)
-
 	outputs = []
 	with torch.no_grad():
 		for batch_idx, batch in enumerate(val_loader):
@@ -39,14 +34,12 @@ def validate(net, validation_step, val_set, **kw):
 
 	outputs = {k: sum([dic[k] for dic in outputs]) for k in outputs[0]}
 	for k, v in outputs.items():
-		kw['writer'].add_scalar("Epoch-" + k + "/valid", v / len(val_set), kw['epoch'])
+		kw['writer'].add_scalar("Epoch-" + k + "/valid", v / len(val_loader.dataset), kw['epoch'])
 
 
-def attack(net, validation_step, attacked_step, val_set, **kw):
+def attack(net, validation_step, attacked_step, val_loader, **kw):
   
 	net.eval()
-	val_loader = torch.utils.data.DataLoader(dataset = val_set, batch_size =  kw['batch_size'], num_workers = 2, shuffle = False)
-
 	outputs = []
 	outputs_ = []
 	for batch_idx, batch in enumerate(val_loader):
@@ -60,16 +53,16 @@ def attack(net, validation_step, attacked_step, val_set, **kw):
 	outputs = {k: sum([dic[k] for dic in outputs]).item() for k in outputs[0]}
 	outputs_ = {k: sum([dic[k] for dic in outputs_]).item() for k in outputs_[0]}
 	for k, v in outputs.items():
-		kw['writer'].add_scalar("Epoch-" + k + "/valid", v / len(val_set), kw['epoch'])
+		kw['writer'].add_scalar("Epoch-" + k + "/valid", v / len(val_loader.dataset), kw['epoch'])
 	for k, v in outputs_.items():
-		kw['writer'].add_scalar("Epoch-" + k + "/attack", v / len(val_set), kw['epoch'])
+		kw['writer'].add_scalar("Epoch-" + k + "/attack", v / len(val_loader.dataset), kw['epoch'])
 
 	return outputs, outputs_
 
 
-def predict(net, predict_step, val_set, **kw):
+def predict(net, predict_step, val_loader, **kw):
 	net.eval()
-	val_loader = torch.utils.data.DataLoader(dataset = val_set, batch_size =  kw['batch_size'], num_workers = 2, shuffle = False)
+	# val_loader = torch.utils.data.DataLoader(dataset = val_set, batch_size =  kw['batch_size'], num_workers = 2, shuffle = False)
 
 	outputs = []
 	with torch.no_grad():
