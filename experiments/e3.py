@@ -13,7 +13,7 @@ config = {
 	'training_step':'ordinary_step',
 	'z':6,
 	# 'checkpoint':'checkpoints_/Dec31_03-38-03_ruihan-MS-7B23_CIFAR10_ResNet_rand_step_299.pt',
-	# 'checkpoint':'checkpoints/ResNet18_model_MART.pt',
+	# 'checkpoint':'checkpoints/ResNet18_model_ERM100.pt',
 	# 'initialization':'xavier_init',
 	'batch_size':32,
 	'optimizer':'SGD',
@@ -24,7 +24,7 @@ config = {
 	},
 	'scheduler':'MultiStepLR',
 	'scheduler_config':{
-		'milestones':[55, 75, 90, 105, 120, 135, 150],
+		'milestones':[2, 3, 5, 7, 55, 75, 90, 105, 120, 135, 150],
 		'gamma':0.1
 	},
 	# 'scheduler':'StepLR',
@@ -82,10 +82,9 @@ if 'initialization' in config:
 	m.apply(vars(misc)[config['initialization']])
 	# m.layer1.apply(vars(misc)[config['initialization']])
 
-# m.apply(misc.weight_init)
-# for name, param in m.named_parameters():                
-# 	if not (name.startswith('conv1.') or name.startswith('layer1.')):
-# 		param.requires_grad = False
+for name, param in m.named_parameters():                
+	if not (name.startswith('conv1.') or name.startswith('layer1.')):
+		param.requires_grad = False
 
 import pytorchcv.model_provider
 # m = pytorchcv.model_provider.get_model(f"resnet20_{config['dataset'].lower()}", pretrained=True).to(config['device'])
@@ -115,6 +114,7 @@ for k, v in config.items():
 		
 
 for epoch in range(1000):
+	print(config['optimizer'])
 	if epoch > 0:
 		iterate.train(m,
 			train_set = train_set,
