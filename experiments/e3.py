@@ -70,10 +70,9 @@ if 'checkpoint' in config:
 if 'initialization' in config:
 	m.apply(vars(misc)[config['initialization']])
 
-# m.apply(misc.weight_init)
-# for name, param in m.named_parameters():                
-# 	if not (name.startswith('conv1.') or name.startswith('layer1.')):
-# 		param.requires_grad = False
+for name, param in m.named_parameters():                
+	if not (name.startswith('conv1.') or name.startswith('layer1.')):
+		param.requires_grad = False
 
 # import pytorchcv.model_provider
 # m = pytorchcv.model_provider.get_model(f"resnet20_{config['dataset'].lower()}", pretrained=True).to(config['device'])
