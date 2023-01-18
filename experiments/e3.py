@@ -21,10 +21,16 @@ config = {
 		'momentum':0.9,
 		'weight_decay':3.5e-3,
 	},
-	'scheduler':'MultiStepLR',
+	# 'scheduler':'MultiStepLR',
+	# 'scheduler_config':{
+	# 	'milestones':[55, 75, 90, 105, 120, 135, 150],
+	# 	'gamma':0.1
+	# },
+	'scheduler':'CyclicLR',
 	'scheduler_config':{
-		'milestones':[55, 75, 90, 105, 120, 135, 150],
-		'gamma':0.1
+		'max_lr':0.1,
+		'base_lr':1e-5,
+		'step_size_up':20
 	},
 	'sample_':'sample_uniform_linf_with_clamp',
 	'num':50,	
