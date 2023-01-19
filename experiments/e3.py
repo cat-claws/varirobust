@@ -10,7 +10,7 @@ from utils import nets, datasets, iterate, misc
 
 config = {
 	'dataset':'CIFAR10',
-	'training_step':'ordinary_step',
+	'training_step':'trades_step',
 	'z':6,
 	# 'checkpoint':'checkpoints/ResNet18_model_ours115.pt',
 	# 'initialization':'xavier_init',
@@ -21,17 +21,17 @@ config = {
 		'momentum':0.9,
 		'weight_decay':3.5e-3,
 	},
-	# 'scheduler':'MultiStepLR',
-	# 'scheduler_config':{
-	# 	'milestones':[55, 75, 90, 105, 120, 135, 150],
-	# 	'gamma':0.1
-	# },
-	'scheduler':'CyclicLR',
+	'scheduler':'MultiStepLR',
 	'scheduler_config':{
-		'max_lr':0.1,
-		'base_lr':1e-5,
-		'step_size_up':20
+		'milestones':[55, 75, 90],
+		'gamma':0.1
 	},
+	# 'scheduler':'CyclicLR',
+	# 'scheduler_config':{
+	# 	'max_lr':0.1,
+	# 	'base_lr':1e-5,
+	# 	'step_size_up':20
+	# },
 	'sample_':'sample_uniform_linf_with_clamp',
 	'num':50,	
 	'eps':8/255,
@@ -70,9 +70,9 @@ if 'checkpoint' in config:
 if 'initialization' in config:
 	m.apply(vars(misc)[config['initialization']])
 
-for name, param in m.named_parameters():                
-	if not (name.startswith('conv1.') or name.startswith('layer1.')):
-		param.requires_grad = False
+# for name, param in m.named_parameters():                
+# 	if not (name.startswith('conv1.') or name.startswith('layer1.')):
+# 		param.requires_grad = False
 
 # import pytorchcv.model_provider
 # m = pytorchcv.model_provider.get_model(f"resnet20_{config['dataset'].lower()}", pretrained=True).to(config['device'])
@@ -108,7 +108,7 @@ for epoch in range(115):
 			train_loader = train_loader,
 			epoch = epoch,
 			writer = writer,
-			# atk = config['adversarial'],
+			atk = config['adversarial'],
 			**config
 		)
 
