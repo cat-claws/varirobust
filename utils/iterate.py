@@ -10,7 +10,7 @@ def train(net, training_step, train_loader, optimizer, scheduler, **kw):
 		loss = output['loss'] / kw['batch_size']
 		loss.backward()
 		optimizer.step()
-		outputs.append(output)
+		outputs.append({k:v.detach().cpu() for k, v in output.items()})
 		for k, v in output.items():
 			kw['writer'].add_scalar("Step-" + k + "-train", v / kw['batch_size'], kw['epoch'] * len(train_loader) + batch_idx)
 
@@ -28,7 +28,7 @@ def validate(net, validation_step, val_loader, **kw):
 	with torch.no_grad():
 		for batch_idx, batch in enumerate(val_loader):
 			output = validation_step(net, batch, batch_idx, **kw)
-			outputs.append(output)
+			outputs.append({k:v.detach().cpu() for k, v in output.items()})
 			for k, v in output.items():
 				kw['writer'].add_scalar("Step-" + k + "-valid", v / kw['batch_size'], kw['epoch'] * len(val_loader) + batch_idx)
 

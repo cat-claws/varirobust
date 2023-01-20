@@ -10,7 +10,7 @@ from utils import nets, datasets, iterate, misc
 
 config = {
 	'dataset':'CIFAR10',
-	'training_step':'trades_step',
+	'training_step':'ordinary_step',
 	'z':6,
 	# 'checkpoint':'checkpoints/ResNet18_model_ours115.pt',
 	# 'initialization':'xavier_init',
@@ -81,7 +81,7 @@ if 'initialization' in config:
 # 	if not (name.startswith('features.init_block.') or name.startswith('features.stage1.')):
 # 		param.requires_grad = False
 
-writer = SummaryWriter(comment = f"_{config['dataset']}_{m._get_name()}_{config['training_step']}")
+writer = SummaryWriter(comment = f"_{config['dataset']}_{m._get_name()}_{config['training_step']}", flush_secs=10)
 
 import json
 with open("checkpoints/configs.json", 'a') as f:

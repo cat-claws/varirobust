@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 from torch.nn import functional as F
 
-from sampling import forward_samples
+from sampling import forward_samples, ztest
 
 
 def ordinary_step(net, batch, batch_idx, **kw):
@@ -42,13 +42,14 @@ def augmented_step(net, batch, batch_idx, **kw):
 		_, max_labels_ = scores_.max(-1)
 		correct_ = (max_labels_ == labels).float()
 
-		correct = correct_[0].sum()	
-		correct_ = correct_.mean(dim = 0)
-		
+		correct = correct_[0].sum()
+		hypothesis_accuracy	= {f'hypothesis/{v}-{alpha}':ztest(correct_, v, alpha).sum() for v in (0.9, 0.95, 0.975, 0.99, 0.999) for alpha in (0.1, 0.05, 0.01)}
+		correct_ = correct_.mean(dim = 0)		
 		augmented_accuracy = correct_.sum()
-		quantile_accuracy = (correct_ > kw['threshold']).sum().float()
+		quantile_accuracy = {f'quantile/{v}':(correct_ > v).sum().float() for v in (0.9, 0.95, 0.975, 0.99, 0.999)}
 
-	return {'loss':loss, 'correct':correct, 'augmented':augmented_accuracy, 'quantile':quantile_accuracy, 'mu':mu.sum(), 'sigma':sigma.sum()}
+
+	return {'loss':loss, 'correct':correct, **hypothesis_accuracy, 'augmented':augmented_accuracy, **quantile_accuracy, 'mu':mu.sum(), 'sigma':sigma.sum()}
 
 
 def prl_step(net, batch, batch_idx, **kw):# dimension problem

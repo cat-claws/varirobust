@@ -57,3 +57,10 @@ def forward_samples(net, x, **kw):
 	all_inputs = kw['sample_'](x, kw['eps'], kw['num'])
 	outputs = forward_micro(net, all_inputs, kw['microbatch_size'])
 	return outputs, all_inputs
+
+from statsmodels.stats import weightstats
+
+def ztest(x, threshold, alpha):
+	x = x.cpu().numpy()
+	_, pvalue = weightstats.ztest(x1=x, x2=None, value=threshold, alternative='larger')
+	return torch.from_numpy(pvalue < alpha).float()
