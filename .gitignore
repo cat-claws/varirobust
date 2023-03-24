@@ -6,3 +6,4 @@ runs*/*
 */Dataset/*
 demo/runs/*
 checkpoints_/*
+demo/*
