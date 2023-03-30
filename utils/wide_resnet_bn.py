@@ -1,9 +1,11 @@
+"""Resnet implementation is based on the implementation found in:
+https://github.com/shizhouxing/Fast-Certified-Robust-Training/blob/main/models/wide_resnet_bn.py
+"""
+
 import torch
 import torch.nn as nn
-import torch.nn.init as init
 import torch.nn.functional as F
-import numpy as np
-from .utils import Flatten
+from .nets import Flatten
 
 def conv3x3(in_planes, out_planes, stride = 1, groups = 1, dilation = 1):
     """3x3 convolution with padding"""
