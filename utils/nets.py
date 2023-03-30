@@ -37,6 +37,38 @@ class ConvNet(nn.Module):
 		x = self.dropout2(x)
 		x = self.fc2(x)
 		return x
+	
+"""CNN (7 layers) with batch normalisation in:
+https://github.com/shizhouxing/Fast-Certified-Robust-Training/blob/main/models/feedforward.py
+"""
+
+class Flatten(nn.Module):
+	def forward(self, x):
+		return x.view(x.size(0), -1)
+	
+def CNN7(in_ch=3, in_dim=32, width=64, linear_size=512, num_class=10):
+	return nn.Sequential(
+		nn.Conv2d(in_ch, width, 3, stride=1, padding=1),
+		nn.BatchNorm2d(width),
+		nn.ReLU(),
+		nn.Conv2d(width, width, 3, stride=1, padding=1),
+		nn.BatchNorm2d(width),
+		nn.ReLU(),
+		nn.Conv2d(width, 2 * width, 3, stride=2, padding=1),
+		nn.BatchNorm2d(2 * width),
+		nn.ReLU(),
+		nn.Conv2d(2 * width, 2 * width, 3, stride=1, padding=1),
+		nn.BatchNorm2d(2 * width),
+		nn.ReLU(),
+		nn.Conv2d(2 * width, 2 * width, 3, stride=1, padding=1),
+		nn.BatchNorm2d(2 * width),
+		nn.ReLU(),
+		Flatten(),
+		nn.Linear((in_dim//2) * (in_dim//2) * 2 * width, linear_size),
+		nn.BatchNorm1d(linear_size),
+		nn.ReLU(),
+		nn.Linear(linear_size,num_class)
+	)
 
 """Resnet implementation is based on the implementation found in:
 https://github.com/YisenWang/MART/blob/master/resnet.py
