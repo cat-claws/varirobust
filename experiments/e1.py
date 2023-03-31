@@ -13,20 +13,10 @@ config = {
 	'training_step':'our_step',
 	'z':1,
 	'batch_size':32,
-	# 'optimizer':'SGD',
-	# 'optimizer_config':{
-	# 	'lr':0.1,
-	# 	'momentum':0.9,
-	# 	'weight_decay':2e-4,
-	# },
 	'optimizer':'Adadelta',
 	'optimizer_config':{
 		'lr':1,
 	},
-	# 'optimizer':'AdamW',
-	# 'optimizer_config':{
-	# 	'weight_decay':0,
-	# },
 	'scheduler':'MultiStepLR',
 	'scheduler_config':{
 		'milestones':[75,90,100],
@@ -34,12 +24,12 @@ config = {
 	},
 	# 'noise_level':0.6,
 	'sample_':'sample_uniform_linf_with_clamp',
-	'num':50,	
-	'eps':0.3,
+	'num':1000,	
+	'eps':0.2,
 	'attack':'PGD',
 	'attack_config':{
-		'eps':0.3,
-		'alpha':0.1,
+		'eps':0.1,
+		'alpha':0.01,
 		'steps':10,
 		'random_start':False,
 	},
@@ -65,11 +55,13 @@ config = {
 
 train_set, val_set, channel = misc.auto_sets(config['dataset'])
 m = nets.auto_net(channel).cuda()
-m.load_state_dict(torch.load('checkpoints/Dec11_16-08-12_vm1_MNIST_ConvNet_our_step_269.pt'))
 
+if 'checkpoint' in config:
+	m.load_state_dict({k:v for k,v in torch.load(config['checkpoint']).items() if k in m.state_dict()})
+if 'initialization' in config:
+	m.apply(vars(misc)[config['initialization']])
 
-writer = SummaryWriter(comment = f"_{config['dataset']}_{m._get_name()}_{config['training_step']}")
-# writer.add_hparams(config, {})
+writer = SummaryWriter(comment = f"_{config['dataset']}_{m._get_name()}_{config['training_step']}", flush_secs=10)
 
 import json
 with open("checkpoints/configs.json", 'a') as f:
@@ -87,11 +79,13 @@ for k, v in config.items():
 	elif k == 'adversarial' or k == 'attack':
 		config[k] = vars(torchattacks)[v](m, **config[k+'_config'])
 		
+train_loader = torch.utils.data.DataLoader(dataset = train_set, batch_size =  config['batch_size'], num_workers = 2, shuffle = True)
+val_loader = torch.utils.data.DataLoader(dataset = val_set, batch_size =  config['batch_size'], num_workers = 2, shuffle = False)
 
-for epoch in range(300):
+for epoch in range(150):
 	if epoch > 0:
 		iterate.train(m,
-			train_set = train_set,
+			train_loader = train_loader,
 			epoch = epoch,
 			writer = writer,
 			atk = config['adversarial'],
@@ -99,7 +93,7 @@ for epoch in range(300):
 		)
 
 	iterate.attack(m,
-		val_set = val_set,
+		val_loader = val_loader,
 		epoch = epoch,
 		writer = writer,
 		atk = config['attack'],
@@ -112,7 +106,7 @@ print(m)
 
 outputs = iterate.predict(m,
 	steps.predict_step,
-	val_set = val_set,
+	val_loader = val_loader,
 	**config
 )
 

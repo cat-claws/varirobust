@@ -12,7 +12,7 @@ config = {
 	'dataset':'CIFAR10',
 	'training_step':'ordinary_step',
 	'z':6,
-	# 'checkpoint':'checkpoints/ResNet18_model_ours115.pt',
+	'checkpoint':'checkpoints/Jan18_23-50-42_ruihan-MS-7B23_CIFAR10_ResNet_trades_step_100.pt',
 	# 'initialization':'xavier_init',
 	'batch_size':32,
 	'optimizer':'SGD',
@@ -33,11 +33,11 @@ config = {
 	# 	'step_size_up':20
 	# },
 	'sample_':'sample_uniform_linf_with_clamp',
-	'num':50,	
-	'eps':8/255,
+	'num':100,	
+	'eps':4/255,
 	'attack':'PGD',
 	'attack_config':{
-		'eps':8/255,
+		'eps':2/255,
 		'alpha':1/255,
 		'steps':20,
 		'random_start':False,
@@ -53,7 +53,7 @@ config = {
 	'threshold':0.95,
 	'adversarial':'TPGD',
 	'adversarial_config':{
-		'eps':8/255,
+		'eps':2/255,
 		'alpha':2/255,
 		'steps':10,
 	},

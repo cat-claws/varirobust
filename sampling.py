@@ -64,3 +64,20 @@ def ztest(x, threshold, alpha):
 	x = x.cpu().numpy()
 	_, pvalue = weightstats.ztest(x1=x, x2=None, value=threshold, alternative='larger')
 	return torch.from_numpy(pvalue < alpha).float()
+
+def sprt(x, threshold, alpha):
+	x = x.cpu().numpy()
+	n = x.shape[0]
+	m = n - x.sum(0) + 1e-9
+	pr = ((threshold+0.02)**m * (1-threshold-0.02)**(n-m))/((threshold-0.02)**m * (1-threshold+0.02)**(n-m) + 1e-9)
+
+	h0 = (1 - alpha) / alpha
+	h1 = alpha / (1 - alpha)
+
+	cert = np.logical_or(pr > h0, pr < h1).sum()
+	if cert < x.shape[1]:
+		print('Cannot Accept H0. p < {} or H1. p > {} after {}/{} tests.'.format(h0, h1, cert, n))
+	else:
+		print(cert)
+
+	return torch.from_numpy(pr <= h1).float()
