@@ -15,7 +15,7 @@ config = {
 	'dataset':'CIFAR10',
 	# 'training_step':'ordinary_step',
 	# 'z':6,
-	'checkpoint':'checkpoints/ResNet18_cifar10_RandSmoothing.pt',
+	'checkpoint':'checkpoints/ResNet18_cifar10_TRADES.pt',
 	# 'initialization':'xavier_init',
 	'batch_size':32,
 	# 'optimizer':'SGD',
