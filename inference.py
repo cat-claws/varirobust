@@ -6,17 +6,16 @@ import numpy as np
 from sampling import forward_samples
 
 
-
-
-# class CI(torch.nn.Module):
-# 	def __init__(self, m1, m2):
-# 		super(Ensemble, self).__init__()
-# 		self.m1 = m1
-# 		self.m2 = m2
-
-# 	def forward(self, x):
-# 		return (self.m1(x) + self.m2(x))/2
-
-def ci(net, **kw)
+def ci(net, x, **kw):
 	outputs, _ = forward_samples(net, x, **kw)
-	return torch.nn.functional.normalize(outputs, p=1, dim=1).mean(dim = 0)
+	return F.softmax(outputs/1e-4, dim = -1).mean(0)# - outputs.mean(0).detach() + outputs.mean(0)
+
+class CI(nn.Module):
+	def __init__(self, net, **kw):
+		super(CI, self).__init__()
+		self.net = net
+		self.kw = kw
+		
+	def forward(self, x):
+		return ci(self.net, x, **self.kw)
+		

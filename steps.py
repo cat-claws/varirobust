@@ -147,6 +147,37 @@ def our_step(net, batch, batch_idx, **kw):
 
 	return {'loss':loss, 'correct':correct, 'augmented':augmented_accuracy, 'quantile':quantile_accuracy, 'mu':mu.sum(), 'sigma':sigma.sum()}
 
+def tradesplus_step(net, batch, batch_idx, **kw):
+	inputs, labels = batch
+	inputs, labels = inputs.to(kw['device']), labels.to(kw['device'])
+	scores_, inputs_ = forward_samples(net, inputs, **kw)
+
+	loss_ = F.cross_entropy(scores_.permute(1, 2, 0), labels.unsqueeze(1).expand(-1, kw['num'] + 1), reduction = 'none')
+
+	sigma = torch.std(loss_[:, 1:], dim = 1)
+	mu = torch.mean(loss_[:, 1:], dim = 1)
+
+	loss = (mu + kw['z'] * sigma).sum()
+
+	inputs_ = kw['atk'](inputs, labels)
+
+	scores = net(inputs_)
+	loss += F.cross_entropy(scores, labels, reduction = 'sum') + kw['z'] * F.kl_div(torch.log_softmax(scores, dim=1), F.softmax(net(inputs), dim=1), reduction='batchmean') * inputs.shape[0]
+
+
+	with torch.no_grad():
+		_, max_labels_ = scores_.max(-1)
+		correct_ = (max_labels_ == labels).float()
+
+		correct = correct_[0].sum()	
+		correct_ = correct_.mean(dim = 0)
+		
+		augmented_accuracy = correct_.sum()
+		quantile_accuracy = (correct_ > kw['threshold']).sum().float()
+
+	return {'loss':loss, 'correct':correct, 'augmented':augmented_accuracy, 'quantile':quantile_accuracy, 'mu':mu.sum(), 'sigma':sigma.sum()}
+
+
 def attacked_step(net, batch, batch_idx, **kw):
 	inputs, labels = batch
 	inputs, labels = inputs.to(kw['device']), labels.to(kw['device'])

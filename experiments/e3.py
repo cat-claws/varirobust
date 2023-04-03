@@ -2,6 +2,9 @@ import torch
 import torch.nn.functional as F
 from torch.utils.tensorboard import SummaryWriter
 
+import sys
+sys.path.insert(0, '../adversarial-attacks-pytorch/')
+sys.path.append('..')
 import torchattacks
 
 import steps
@@ -10,20 +13,20 @@ from utils import nets, datasets, iterate, misc
 
 config = {
 	'dataset':'CIFAR10',
-	'training_step':'ordinary_step',
+	'training_step':'tradesplus_step',
 	'z':6,
-	'checkpoint':'checkpoints/Jan18_23-50-42_ruihan-MS-7B23_CIFAR10_ResNet_trades_step_100.pt',
+	'checkpoint':'checkpoints/ResNet18_cifar10_var_1000.pt',
 	# 'initialization':'xavier_init',
 	'batch_size':32,
 	'optimizer':'SGD',
 	'optimizer_config':{
-		'lr':1e-2,
+		'lr':1e-5,
 		'momentum':0.9,
 		'weight_decay':3.5e-3,
 	},
 	'scheduler':'MultiStepLR',
 	'scheduler_config':{
-		'milestones':[55, 75, 90],
+		'milestones':[100, 200],
 		'gamma':0.1
 	},
 	# 'scheduler':'CyclicLR',
@@ -34,10 +37,10 @@ config = {
 	# },
 	'sample_':'sample_uniform_linf_with_clamp',
 	'num':100,	
-	'eps':4/255,
+	'eps':8/255,
 	'attack':'PGD',
 	'attack_config':{
-		'eps':2/255,
+		'eps':8/255,
 		'alpha':1/255,
 		'steps':20,
 		'random_start':False,
@@ -53,12 +56,12 @@ config = {
 	'threshold':0.95,
 	'adversarial':'TPGD',
 	'adversarial_config':{
-		'eps':2/255,
+		'eps':8/255,
 		'alpha':2/255,
 		'steps':10,
 	},
 	'device':'cuda',
-	'validation_step':'augmented_step',
+	'validation_step':'ordinary_step',
 	'attacked_step':'attacked_step'
 }
 

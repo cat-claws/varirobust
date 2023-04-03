@@ -12,10 +12,10 @@ import sampling
 from utils import nets, datasets, iterate, misc
 
 config = {
-	'dataset':'CIFAR10',
+	'dataset':'SVHN',
 	# 'training_step':'ordinary_step',
 	# 'z':6,
-	'checkpoint':'checkpoints/ResNet18_cifar10_TRADES.pt',
+	'checkpoint':'checkpoints/ResNet18_svhn_ERM.pt',
 	# 'initialization':'xavier_init',
 	'batch_size':32,
 	# 'optimizer':'SGD',
