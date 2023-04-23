@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
+import torchvision.transforms as transforms
 
 import numpy as np
 from sampling import forward_samples
@@ -18,4 +19,17 @@ class CI(nn.Module):
 		
 	def forward(self, x):
 		return ci(self.net, x, **self.kw)
+
+
+def predict_with_transform(net, x):
+    T = transforms.Normalize(mean = torch.tensor([0.4914, 0.4822, 0.4465]), std = torch.tensor([0.2023, 0.1994, 0.2010]))
+    return net(T(x))
+
+class LambdaI(nn.Module):
+	def __init__(self, net, predict=predict_with_transform):
+		super(LambdaI, self).__init__()
+		self.net = net
+		self.predict = predict
 		
+	def forward(self, x):
+		return self.predict(self.net, x)
