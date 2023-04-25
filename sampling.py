@@ -2,8 +2,7 @@ import torch
 import torch.nn as nn
 from torch.nn import functional as F
 
-import numpy as np
-from utils.misc import forward_micro
+# import numpy as np
 
 def sample_uniform_linf(x, eps, num):
 	x_ = x.repeat(num, 1, 1, 1, 1)
@@ -52,32 +51,27 @@ def sample_steep(x, eps, num):
 		all_inputs.append(x2)
 	return torch.stack(all_inputs)
 
-def forward_samples(net, x, **kw):
-	num_inputs = (kw['num'] + 1) * len(x)
-	all_inputs = kw['sample_'](x, kw['eps'], kw['num'])
-	outputs = forward_micro(net, all_inputs, kw['microbatch_size'])
-	return outputs, all_inputs
 
-from statsmodels.stats import weightstats
+# from statsmodels.stats import weightstats
 
-def ztest(x, threshold, alpha):
-	x = x.cpu().numpy()
-	_, pvalue = weightstats.ztest(x1=x, x2=None, value=threshold, alternative='larger')
-	return torch.from_numpy(pvalue < alpha).float()
+# def ztest(x, threshold, alpha):
+# 	x = x.cpu().numpy()
+# 	_, pvalue = weightstats.ztest(x1=x, x2=None, value=threshold, alternative='larger')
+# 	return torch.from_numpy(pvalue < alpha).float()
 
-def sprt(x, threshold, alpha):
-	x = x.cpu().numpy()
-	n = x.shape[0]
-	m = n - x.sum(0) + 1e-9
-	pr = ((threshold+0.02)**m * (1-threshold-0.02)**(n-m))/((threshold-0.02)**m * (1-threshold+0.02)**(n-m) + 1e-9)
+# def sprt(x, threshold, alpha):
+# 	x = x.cpu().numpy()
+# 	n = x.shape[0]
+# 	m = n - x.sum(0) + 1e-9
+# 	pr = ((threshold+0.02)**m * (1-threshold-0.02)**(n-m))/((threshold-0.02)**m * (1-threshold+0.02)**(n-m) + 1e-9)
 
-	h0 = (1 - alpha) / alpha
-	h1 = alpha / (1 - alpha)
+# 	h0 = (1 - alpha) / alpha
+# 	h1 = alpha / (1 - alpha)
 
-	cert = np.logical_or(pr > h0, pr < h1).sum()
-	if cert < x.shape[1]:
-		print('Cannot Accept H0. p < {} or H1. p > {} after {}/{} tests.'.format(h0, h1, cert, n))
-	else:
-		print(cert)
+# 	cert = np.logical_or(pr > h0, pr < h1).sum()
+# 	if cert < x.shape[1]:
+# 		print('Cannot Accept H0. p < {} or H1. p > {} after {}/{} tests.'.format(h0, h1, cert, n))
+# 	else:
+# 		print(cert)
 
-	return torch.from_numpy(pr <= h1).float()
+# 	return torch.from_numpy(pr <= h1).float()

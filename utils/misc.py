@@ -1,3 +1,4 @@
+import math
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
@@ -9,6 +10,8 @@ import cv2
 import itertools
 import numpy as np
 import matplotlib.pyplot as plt
+
+from transformers.utils import ModelOutput
 
 from . import datasets
 
@@ -36,16 +39,6 @@ def auto_sets(name):
     return train_set, val_set, channel
 
 
-# batch process sampled inputs
-def forward_micro(net, xs, microbatch_size):
-    d0, d1, _, _, _ = xs.shape
-    num_inputs = d0 * d1
-    outputs = []
-    for k in range(int(np.ceil(num_inputs / microbatch_size))):
-        outputs.append(net(xs.view(num_inputs, *xs.shape[2:])[k * microbatch_size: (k + 1) * microbatch_size]))
-    outputs = torch.cat(outputs, dim = 0).view(d0, d1, -1)
-    return outputs
-
 def xavier_init(net):
     if isinstance(net, nn.Conv2d):
         nn.init.xavier_normal_(net.weight, gain=nn.init.calculate_gain('relu'))
@@ -59,6 +52,34 @@ def xavier_init(net):
     #     net.weight.data.fill_(1)
     #     net.bias.data.zero_()
 
+def certified_accuracy(model: nn.Module,
+                    x: torch.Tensor,
+                    y: torch.Tensor,
+                    batch_size: int = 100,
+                    device: torch.device = None):
+    if device is None:
+        device = x.device
+    acc = 0.
+    cert = 0.
+    cert_acc = 0.
+    n_batches = math.ceil(x.shape[0] / batch_size)
+    with torch.no_grad():
+        for counter in range(n_batches):
+            x_curr = x[counter * batch_size:(counter + 1) *
+                        batch_size].to(device)
+            y_curr = y[counter * batch_size:(counter + 1) *
+                        batch_size].to(device)
+
+            output = model(x_curr)
+            acc += (output.logits.max(1)[1] == y_curr).float().sum()
+            cert += output.certified.float().sum()
+            cert_acc += torch.logical_and(output.logits.max(1)[1] == y_curr, output.certified).float().sum()
+
+    return ModelOutput(
+        accuracy = acc.item() / x.shape[0],
+        certified_rate = cert.item() / x.shape[0],
+        certified_accuracy = cert_acc.item() / x.shape[0],
+    )
 
 def kaiming_init(model):
     for name, param in model.named_parameters():
