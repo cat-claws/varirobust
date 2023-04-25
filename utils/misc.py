@@ -65,6 +65,7 @@ def certified_accuracy(model: nn.Module,
     n_batches = math.ceil(x.shape[0] / batch_size)
     with torch.no_grad():
         for counter in range(n_batches):
+            print(counter)
             x_curr = x[counter * batch_size:(counter + 1) *
                         batch_size].to(device)
             y_curr = y[counter * batch_size:(counter + 1) *
@@ -80,6 +81,72 @@ def certified_accuracy(model: nn.Module,
         certified_rate = cert.item() / x.shape[0],
         certified_accuracy = cert_acc.item() / x.shape[0],
     )
+
+from torchattacks import *
+def attack_bundle(model: nn.Module,
+                    x: torch.Tensor,
+                    y: torch.Tensor,
+                    batch_size: int = 100,
+                    device: torch.device = None):
+
+    if device is None:
+        device = x.device
+    
+    atks = [GN(model),
+                FGSM(model, eps=8/255),
+                AutoAttack(model, norm='Linf', eps=8/255, version='standard', n_classes=10, seed=None, verbose=False),
+                Square(model, norm='Linf', eps=8/255, n_queries=5000, n_restarts=1, verbose=False),
+                BIM(model, eps=8/255, alpha=2/255, steps=10),
+                RFGSM(model, eps=8/255, alpha=2/255, steps=10),
+                PGD(model, eps=8/255, alpha=1/255, steps=10, random_start=True),
+                EOTPGD(model, eps=8/255, alpha=2/255, steps=10, eot_iter=2),
+                FFGSM(model, eps=8/255, alpha=10/255),
+                TPGD(model, eps=8/255, alpha=2/255, steps=10),
+                MIFGSM(model, eps=8/255, steps=10, decay=1.0),
+                UPGD(model, eps=8/255, alpha=2/255, steps=10, random_start=False),
+                APGD(model, norm='Linf', eps=8/255, steps=10, n_restarts=1, seed=0, loss='ce', eot_iter=1, rho=.75, verbose=False),
+                APGDT(model, norm='Linf', eps=8/255, steps=10, n_restarts=1, seed=0, eot_iter=1, rho=.75, verbose=False, n_classes=10),
+                DIFGSM(model, eps=8/255, alpha=2/255, steps=10, decay=0.0, resize_rate=0.9, diversity_prob=0.5, random_start=False),
+                TIFGSM(model, eps=8/255, alpha=2/255, steps=10, decay=1.0, resize_rate=0.9, diversity_prob=0.7, random_start=False),
+                Jitter(model, eps=8/255, alpha=2/255, steps=10, scale=10, std=0.1, random_start=True),
+                NIFGSM(model, eps=8/255, alpha=2/255, steps=10, decay=1.0),
+                PGDRS(model, eps=8/255, alpha=2/255, steps=10, noise_type="guassian", noise_sd=0.5, noise_batch_size=5, batch_max=2048),
+                SINIFGSM(model, eps=8/255, alpha=2/255, steps=10, decay=1.0, m=5),
+                VMIFGSM(model, eps=8/255, alpha=2/255, steps=10, decay=1.0, N=5, beta=3/2),
+                VNIFGSM(model, eps=8/255, alpha=2/255, steps=10, decay=1.0, N=5, beta=3/2),
+                CW(model, c=1, kappa=0, steps=50, lr=0.01),
+                PGDL2(model, eps=1.0, alpha=0.2, steps=10, random_start=True),
+                PGDRSL2(model, eps=1.0, alpha=0.2, steps=10, noise_type="guassian", noise_sd=0.5, noise_batch_size=5, batch_max=2048),
+                OnePixel(model, pixels=1, steps=10, popsize=10, inf_batch=128),
+                Pixle(model, x_dimensions=(0.1, 0.2), restarts=10, max_iterations=50),
+                FAB(model, norm='Linf', steps=10, eps=8/255, n_restarts=1, alpha_max=0.1, eta=1.05, beta=0.9),
+    ]
+    adv_acc = {}
+    for atk in atks:
+        adv_acc[atk.attack] = 0.
+        n_batches = math.ceil(x.shape[0] / batch_size)
+        for counter in range(n_batches):
+            x_curr = x[counter * batch_size:(counter + 1) *
+                        batch_size].to(device)
+            y_curr = y[counter * batch_size:(counter + 1) *
+                        batch_size].to(device)
+
+            adv_curr = atk(x_curr, y_curr)
+            with torch.no_grad():
+
+                output = model(adv_curr)
+                adv_acc[atk.attack] += (output.max(1)[1] == y_curr).float().sum()
+
+        adv_acc[atk.attack] = adv_acc[atk.attack].item() / x.shape[0]
+        print(atk.attack, adv_acc[atk.attack])
+
+    return ModelOutput(
+        **adv_acc
+    )
+
+
+
+
 
 def kaiming_init(model):
     for name, param in model.named_parameters():
