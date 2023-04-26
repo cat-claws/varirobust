@@ -14,8 +14,8 @@ from utils import nets, datasets, iterate, misc, autonet
 
 config = {
 	'dataset':'SVHN',
-	'model_name':'resnet18_svhn_var_',
-	'batch_size':4,
+	'model_name':'resnet18_svhn_var',
+	'batch_size':32,
 	'eps':8/255,
 	'attack':'BruteForceUniform',
 	'attack_config':{
@@ -32,22 +32,24 @@ config = {
 
 train_set, val_set, channel = misc.auto_sets(config['dataset'])
 
+m = autonet.load_model(config['model_name']).cuda()
+
 # if 'model_name' in config:
 # 	m.load_state_dict({k:v for k,v in torch.load(config['model_name']).items() if k in m.state_dict()})
 
 writer = SummaryWriter(comment = f"_{config['dataset']}_{config['model_name'].split('/')[-1]}", flush_secs=10)
 
 
-# for k, v in config.items():
-# 	if k.endswith('_step'):
-# 		config[k] = vars(steps)[v]
-# 	elif k == 'adversarial' or k == 'attack':
-# 		config[k] = vars(torchattacks)[v](m, **config[k+'_config'])
+for k, v in config.items():
+	if k.endswith('_step'):
+		config[k] = vars(steps)[v]
+	elif k == 'adversarial' or k == 'attack':
+		config[k] = vars(torchattacks)[v](m, **config[k+'_config'])
 		
 train_loader = torch.utils.data.DataLoader(dataset = train_set, batch_size =  config['batch_size'], num_workers = 2, shuffle = True)
 val_loader = torch.utils.data.DataLoader(dataset = val_set, batch_size =  config['batch_size'], num_workers = 2, shuffle = False)
 
-for epoch in range(17):
+# for epoch in range(17):
 # 	if epoch > 0:
 # 		iterate.train(m,
 # 			train_loader = train_loader,
@@ -57,32 +59,24 @@ for epoch in range(17):
 # 			**config
 # 		)
 
-# 	iterate.attack(m,
-# 		val_loader = val_loader,
-# 		epoch = epoch,
-# 		writer = writer,
-# 		atk = config['attack'],
-# 		**config
-# 	)
+	# iterate.validate(m,
+	# 	val_loader = val_loader,
+	# 	epoch = epoch,
+	# 	writer = writer,
+	# 	# atk = config['attack'],
+	# 	**config
+	# )
 
 # 	torch.save(m.state_dict(), "model_names_/" + writer.log_dir.split('/')[-1] + f"_{epoch:03}.pt")
-	m = autonet.load_model(config['model_name'] + str(epoch * 20)).cuda()
 
-	for k, v in config.items():
-		if k.endswith('_step'):
-			config[k] = vars(steps)[v]
-		elif k == 'adversarial' or k == 'attack':
-			config[k] = vars(torchattacks)[v](m, **config[k+'_config'])
 
-	print(m)
-
-	outputs = iterate.attack(m,
-		val_loader = val_loader,
-		epoch = epoch,
-		writer = writer,
-		atk = config['attack'],
-		**config
-	)
+outputs = iterate.attack(m,
+	val_loader = val_loader,
+	epoch = 0,
+	writer = writer,
+	atk = config['attack'],
+	**config
+)
 
 # print(outputs.keys(), outputs['predictions'])
 writer.flush()
