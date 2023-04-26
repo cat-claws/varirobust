@@ -13,8 +13,8 @@ import sampling
 from utils import nets, datasets, iterate, misc, autonet
 
 config = {
-	'dataset':'MNIST',
-	'model_name':'convnet_mnist_w',
+	'dataset':'SVHN',
+	'model_name':'resnet18_svhn_erm_2',
 	'batch_size':32,
 	'eps':77/255,
 	# 'attack':'BruteForceUniform',
@@ -27,9 +27,9 @@ config = {
 	# },
 	'attack':'PGD',
 	'attack_config':{
-		'eps':77/255,
-		'alpha':2.55/255,
-		'steps':10,
+		'eps':8/255,
+		'alpha':1/255,
+		'steps':20,
 		'random_start':False,
 	},
 	'device':'cuda',
