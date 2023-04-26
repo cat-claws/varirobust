@@ -7,20 +7,7 @@ import torchvision.transforms as transforms
 from transformers.utils import ModelOutput
 from scipy.stats import binomtest
 
-class LambdaNet(nn.Module):
-	def __init__(self, net, forward, **kw):
-		super(LambdaNet, self).__init__()
-		self.net = net
-		self._forward = forward
-		self.kw = kw
-		self.logits_only = False
-		
-	def forward(self, x):
-		outputs = self._forward(self.net, x, **self.kw)
-		if self.logits_only:
-			return outputs.logits
-		else:
-			return outputs
+
 
 def forward_with_cifar10_transform(net, x):
 	T = transforms.Normalize(mean = torch.tensor([0.4914, 0.4822, 0.4465]), std = torch.tensor([0.2023, 0.1994, 0.2010]))

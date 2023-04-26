@@ -2,14 +2,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-def auto_net(channels):
-	if channels == 1:
-		return ConvNet()
-	elif channels == 3:
-		return ResNet18()
-	else:
-		assert False
-
 """found in:
 https://github.com/pytorch/examples/blob/main/mnist/main.py
 """
