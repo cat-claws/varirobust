@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 from torch.nn import functional as F
 
-from sampling import forward_samples, ztest, sprt
+# from sampling import forward_samples, ztest, sprt
 
 
 def ordinary_step(net, batch, batch_idx, **kw):
