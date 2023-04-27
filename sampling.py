@@ -57,7 +57,7 @@ def sample_random_rotation(x, eps, num):
 
 	x_ = torch.stack(list(map(
 		T.RandomRotation(degrees=eps),
-		images.repeat(num, 1, 1, 1)
+		x.repeat(num, 1, 1, 1)
 	)))
 
 	x_ = x_.view(num, *x.shape)
@@ -68,7 +68,7 @@ def sample_random_translation(x, eps, num):
 
 	x_ = torch.stack(list(map(
 		T.RandomAffine(degrees=0, translate=eps),
-		images.repeat(num, 1, 1, 1)
+		x.repeat(num, 1, 1, 1)
 	)))
 	
 	x_= x_.view(num, *x.shape)
@@ -79,7 +79,7 @@ def sample_random_affine(x, eps, num):
 
 	x_ = torch.stack(list(map(
 		T.RandomAffine(degrees=eps.pop(), translate=eps),
-		images.repeat(num, 1, 1, 1)
+		x.repeat(num, 1, 1, 1)
 	)))
 
 	x_ = x_.view(num, *x.shape)
@@ -90,7 +90,7 @@ def sample_random_scale(x, eps, num):
 
 	x_ = torch.stack(list(map(
 		T.RandomResizedCrop(size=x.shape[-1], scale=eps, ratio=(1, 1), antialias = True),
-		images.repeat(num, 1, 1, 1)
+		x.repeat(num, 1, 1, 1)
 	)))
 
 	x_ = x_.view(num, *x.shape)

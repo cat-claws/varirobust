@@ -13,28 +13,30 @@ import sampling
 from utils import nets, datasets, iterate, misc, autonet
 
 config = {
-	'dataset':'SVHN',
-	'model_name':'resnet18_svhn_erm_2',
+	'dataset':'MNIST',
+	'model_name':'convnet_mnist_prl',
 	'batch_size':32,
 	'eps':77/255,
-	# 'attack':'BruteForceUniform',
-	# 'attack_config':{
-	# 	'eps':77/255,
-	# 	'alpha':1e-1,
-	# 	'mu':1-1e-1,
-	# 	'pop':2048,
-	# 	'verbose':False
-	# },
-	'attack':'PGD',
+	'attack':'BruteForceRandomRotation',
 	'attack_config':{
-		'eps':8/255,
-		'alpha':1/255,
-		'steps':20,
-		'random_start':False,
+		# 'eps':77/255,
+		'eps':35,
+		'alpha':1e-2,
+		'mu':1e-2,
+		'pop':2048,
+		'verbose':False
 	},
+	# 'attack':'PGD',
+	# 'attack_config':{
+	# 	'eps':8/255,
+	# 	'alpha':1/255,
+	# 	'steps':20,
+	# 	'random_start':False,
+	# },
 	'device':'cuda',
 	'validation_step':'ordinary_step',
-	'attacked_step':'attacked_step'
+	# 'attacked_step':'attacked_step',
+	'attacked_step':'binom_step',
 }
 
 train_set, val_set, channel = misc.auto_sets(config['dataset'])

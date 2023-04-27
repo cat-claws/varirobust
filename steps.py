@@ -93,7 +93,7 @@ def binom_step(net, batch, batch_idx, **kw):
 	max_scores, max_labels = scores.max(1)
 	correct = (max_labels == labels).sum()
 
-	certified = ((outputs.K / outputs.N) > kw['atk'].mu).sum().cpu()
+	certified = (outputs.certified).sum().cpu()
 
 	return {'loss':loss, 'correct':correct, 'certified':certified}
 
