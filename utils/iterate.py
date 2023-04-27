@@ -46,9 +46,13 @@ def attack(net, validation_step, attacked_step, val_loader, **kw):
 		with torch.no_grad():
 			output = validation_step(net, batch, batch_idx, **kw)
 			outputs.append({k:v.detach().cpu() for k, v in output.items()})
+			for k, v in output.items():
+				kw['writer'].add_scalar("Step-" + k + "-valid", v / kw['batch_size'], kw['epoch'] * len(val_loader) + batch_idx)
 
 		output_ = attacked_step(net, batch, batch_idx, **kw)
 		outputs_.append({k:v.detach().cpu() for k, v in output_.items()})
+		for k, v in output.items():
+			kw['writer'].add_scalar("Step-" + k + "-attack", v / kw['batch_size'], kw['epoch'] * len(val_loader) + batch_idx)
 
 	outputs = {k: sum([dic[k] for dic in outputs]).item() for k in outputs[0]}
 	outputs_ = {k: sum([dic[k] for dic in outputs_]).item() for k in outputs_[0]}
