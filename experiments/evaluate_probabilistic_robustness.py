@@ -14,14 +14,14 @@ from utils import nets, datasets, iterate, misc, autonet
 
 config = {
 	'dataset':'MNIST',
-	'model_name':'convnet_mnist_var_268_2',
-	'batch_size':64,
+	'model_name':'convnet_mnist_erm',
+	'batch_size':16,
 	'eps':77/255,
-	'attack':'BruteForceRandomRotation',
+	'attack':'BruteForceRandomScale',
 	'attack_config':{
-		'eps':35,
-		'alpha':5e-2,
-		'mu':1e-1,
+		'eps':[0.7, 1.3],
+		'alpha':1e-2,
+		'mu':1e-2,
 		'pop':2048,
 		'verbose':False
 	},
