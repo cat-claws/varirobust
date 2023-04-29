@@ -19,17 +19,23 @@ config = {
 	'model_name':'cifarwrn28_10_cifar100',
 	# 'checkpoint':'checkpoints/ResNet18_cifar10_var_1000.pt',
 	# 'initialization':'xavier_init',
-	'batch_size':32,
+	'batch_size':128,
 	'optimizer':'SGD',
 	'optimizer_config':{
 		'lr':1e-1,
 		'momentum':0.9,
 		'weight_decay':1e-4,
 	},
-	'scheduler':'MultiStepLR',
+	# 'scheduler':'MultiStepLR',
+	# 'scheduler_config':{
+	# 	'milestones':[30, 60, 90, 120, 150],
+	# 	'gamma':0.1
+	# },
+	'scheduler':'CosineAnnealingWarmRestarts',
 	'scheduler_config':{
-		'milestones':[30, 60, 90, 120, 150],
-		'gamma':0.1
+		'T_0':10,
+		'T_mult':2,
+		'eta_min':1e-6
 	},
 	# 'scheduler':'CyclicLR',
 	# 'scheduler_config':{
