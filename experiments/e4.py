@@ -19,7 +19,7 @@ config = {
 	'model_name':'cifarwrn28_10_cifar100',
 	# 'checkpoint':'checkpoints/ResNet18_cifar10_var_1000.pt',
 	# 'initialization':'xavier_init',
-	'batch_size':32,
+	'batch_size':128,
 	'optimizer':'SGD',
 	'optimizer_config':{
 		'lr':1e-1,
