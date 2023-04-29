@@ -85,6 +85,10 @@ def load_model(model_name):
         model.load_state_dict(torch.load('pretrained/' + model_name + '.pt'))
         return model
 
+    elif model_name == 'cifarwrn28_10_cifar100':
+        import pytorchcv.model_provider
+        return pytorchcv.model_provider.get_model(f"wrn28_10_cifar100", pretrained=False)
+
 
     elif model_name.startswith('sample_4_linf_'):
         model = load_model(model_name.replace('sample_4_linf_', ''))

@@ -4,14 +4,16 @@ from torch.nn import functional as F
 from torchvision import datasets, transforms
 
 def auto_set(name, **kwargs):
-    if name == 'MNIST':
-        return datasets.MNIST('Dataset', **kwargs)
-    elif name == 'SVHN':
-        return datasets.SVHN('Dataset', **kwargs)
-    elif name == 'CIFAR10':
-        return datasets.CIFAR10('Dataset', **kwargs)
-    else:
-        return None
+	if name == 'MNIST':
+		return datasets.MNIST('Dataset', **kwargs)
+	elif name == 'SVHN':
+		return datasets.SVHN('Dataset', **kwargs)
+	elif name == 'CIFAR10':
+		return datasets.CIFAR10('Dataset', **kwargs)
+	elif name == 'CIFAR100':
+		return datasets.CIFAR100('Dataset', **kwargs)		
+	else:
+		return None
 
 class MNIST(datasets.MNIST):
 	# fast version of torchvision.datasets.MNIST
