@@ -14,35 +14,23 @@ from utils import nets, datasets, iterate, misc, autonet
 
 config = {
 	'dataset':'CIFAR100',
-	'training_step':'ordinary_step',
-	# 'z':6,
-	'model_name':'cifarwrn28_10_cifar100',
+	'training_step':'our_step',
+	'z':0.1,
+	'model_name':'cifarwrn16_10_cifar100',
 	# 'checkpoint':'checkpoints/ResNet18_cifar10_var_1000.pt',
 	# 'initialization':'xavier_init',
-	'batch_size':128,
+	'batch_size':32,
 	'optimizer':'SGD',
 	'optimizer_config':{
 		'lr':1e-1,
 		'momentum':0.9,
 		'weight_decay':1e-4,
 	},
-	# 'scheduler':'MultiStepLR',
-	# 'scheduler_config':{
-	# 	'milestones':[30, 60, 90, 120, 150],
-	# 	'gamma':0.1
-	# },
-	'scheduler':'CosineAnnealingWarmRestarts',
+	'scheduler':'MultiStepLR',
 	'scheduler_config':{
-		'T_0':10,
-		'T_mult':2,
-		'eta_min':1e-6
+		'milestones':[30, 60, 90, 120, 160],
+		'gamma':0.1
 	},
-	# 'scheduler':'CyclicLR',
-	# 'scheduler_config':{
-	# 	'max_lr':0.1,
-	# 	'base_lr':1e-5,
-	# 	'step_size_up':20
-	# },
 	'sample_':'sample_uniform_linf_with_clamp',
 	'num':100,	
 	'eps':8/255,
@@ -74,25 +62,9 @@ config = {
 }
 
 train_set, val_set, channel = misc.auto_sets(config['dataset'])
-# m = nets.auto_net(channel).cuda()
 m = autonet.load_model(config['model_name']).cuda()
 
 
-# if 'checkpoint' in config:
-# 	m.load_state_dict({k:v for k,v in torch.load(config['checkpoint']).items() if k in m.state_dict()})
-# if 'initialization' in config:
-# 	m.apply(vars(misc)[config['initialization']])
-
-# for name, param in m.named_parameters():                
-# 	if not (name.startswith('conv1.') or name.startswith('layer1.')):
-# 		param.requires_grad = False
-
-# import pytorchcv.model_provider
-# m = pytorchcv.model_provider.get_model(f"resnet20_{config['dataset'].lower()}", pretrained=True).to(config['device'])
-# m.features[0:2].apply(misc.weight_init)
-# for name, param in m.named_parameters():                
-# 	if not (name.startswith('features.init_block.') or name.startswith('features.stage1.')):
-# 		param.requires_grad = False
 
 writer = SummaryWriter(comment = f"_{config['dataset']}_{m._get_name()}_{config['training_step']}", flush_secs=10)
 

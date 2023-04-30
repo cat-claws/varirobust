@@ -89,6 +89,10 @@ def load_model(model_name):
         import pytorchcv.model_provider
         return pytorchcv.model_provider.get_model(f"wrn28_10_cifar100", pretrained=False)
 
+    elif model_name == 'cifarwrn16_10_cifar100':
+        import pytorchcv.model_provider
+        return pytorchcv.model_provider.get_model(f"wrn16_10_cifar100", pretrained=False)
+
 
     elif model_name.startswith('sample_4_linf_'):
         model = load_model(model_name.replace('sample_4_linf_', ''))

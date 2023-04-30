@@ -2,8 +2,8 @@ import torch
 import torch.nn as nn
 from torch.nn import functional as F
 
-# from sampling import forward_samples, ztest, sprt
-
+# from sampling import forward_with_sampling, ztest, sprt
+from forward import forward_with_sampling
 
 def ordinary_step(net, batch, batch_idx, **kw):
 	inputs, labels = batch
@@ -31,7 +31,7 @@ def augmented_step(net, batch, batch_idx, **kw):
 	inputs, labels = batch
 	inputs, labels = inputs.to(kw['device']), labels.to(kw['device'])
 
-	scores_, inputs_ = forward_samples(net, inputs, **kw)
+	scores_, inputs_ = forward_with_sampling(net, inputs, **kw)
 	loss_ = F.cross_entropy(scores_.permute(1, 2, 0), labels.unsqueeze(1).expand(-1, kw['num'] + 1), reduction = 'none')
 	
 	sigma = torch.std(loss_[:, 1:], dim = 1)
@@ -58,7 +58,7 @@ def certify_step(net, batch, batch_idx, **kw):
 
 	scores_adv = net(kw['atk'](inputs, labels))
 
-	scores_, inputs_ = forward_samples(net, inputs, **kw)
+	scores_, inputs_ = forward_with_sampling(net, inputs, **kw)
 	loss_ = F.cross_entropy(scores_.permute(1, 2, 0), labels.unsqueeze(1).expand(-1, kw['num'] + 1), reduction = 'none')
 	
 	sigma = torch.std(loss_[:, 1:], dim = 1)
@@ -103,7 +103,7 @@ def prl_step(net, batch, batch_idx, **kw):# dimension problem
 	inputs, labels = batch
 	inputs, labels = inputs.to(kw['device']), labels.to(kw['device'])
 
-	scores_, inputs_ = forward_samples(net, inputs, **kw)
+	scores_, inputs_ = forward_with_sampling(net, inputs, **kw)
 	loss_ = F.cross_entropy(scores_.permute(1, 2, 0), labels.unsqueeze(1).expand(-1, kw['num'] + 1), reduction = 'none')
 
 	alpha = torch.quantile(loss_.detach(), kw['threshold'], dim = 1)
@@ -126,7 +126,7 @@ def prl_step(net, batch, batch_idx, **kw):# dimension problem
 def our_step(net, batch, batch_idx, **kw):
 	inputs, labels = batch
 	inputs, labels = inputs.to(kw['device']), labels.to(kw['device'])
-	scores_, inputs_ = forward_samples(net, inputs, **kw)
+	scores_ = forward_with_sampling(net, inputs, **{k:v for k, v in kw.items() if k in ['eps', 'sample_', 'microbatch_size', 'num']}).all_logits
 
 	loss_ = F.cross_entropy(scores_.permute(1, 2, 0), labels.unsqueeze(1).expand(-1, kw['num'] + 1), reduction = 'none')
 
@@ -150,7 +150,7 @@ def our_step(net, batch, batch_idx, **kw):
 def tradesplus_step(net, batch, batch_idx, **kw):
 	inputs, labels = batch
 	inputs, labels = inputs.to(kw['device']), labels.to(kw['device'])
-	scores_, inputs_ = forward_samples(net, inputs, **kw)
+	scores_, inputs_ = forward_with_sampling(net, inputs, **kw)
 
 	loss_ = F.cross_entropy(scores_.permute(1, 2, 0), labels.unsqueeze(1).expand(-1, kw['num'] + 1), reduction = 'none')
 
@@ -219,7 +219,7 @@ def perturbation_estimate_step(net, batch, batch_idx, **kw): # num = 40, batch_s
 	eps = torch.ones_like(labels).view(1, -1, 1, 1, 1) * 0.5
 
 	for _ in range(num_estimates):
-		scores_, inputs_ = forward_samples(net, inputs, **kw)
+		scores_, inputs_ = forward_with_sampling(net, inputs, **kw)
 		_, max_labels_ = scores_.max(-1)
 		correct_ = (max_labels_ == labels).float().mean(dim = 0).view(-1, 1, 1, 1)
 		eps += (correct_ - 0.5)# * ((correct_ < 0.5).float() * 30 + 1)
