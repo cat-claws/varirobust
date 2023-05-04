@@ -29,7 +29,7 @@ def load_model(model_name):
         return torch.hub.load('cestwc/models', 'cifarresnet110', pretrained=model_name)
 
     elif model_name == 'wideresnet8_cifar10_shi_70':
-        return torch.hub.load('cestwc/models', 'wideresnet8', pretrained=model_name)
+        return torch.hub.load('cestwc/models', 'wide_resnet_8', pretrained=model_name)
 
     elif model_name == 'mnistcnn_mnist_trades':
         return torch.hub.load('cestwc/models', 'mnistcnn', pretrained=model_name)
@@ -116,7 +116,7 @@ def load_model(model_name):
         return torch.hub.load('cestwc/models', 'mnistcnn', pretrained=model_name)
 
     elif model_name == 'wideresnet8_cifar10_shi_160':
-        return torch.hub.load('cestwc/models', 'wideresnet8', pretrained=model_name, num_classes = 10)
+        return torch.hub.load('cestwc/models', 'wide_resnet_8', pretrained=model_name, num_classes = 10)
 
     elif model_name == 'resnet18_cifar10_var_1000':
         return torch.hub.load('cestwc/models', 'resnet18', pretrained=model_name)
@@ -162,7 +162,7 @@ def load_model(model_name):
 
     elif model_name == 'resnet18_svhn_erm_2':
         return torch.hub.load('cestwc/models', 'resnet18', pretrained=model_name)
-        
+
     elif model_name == 'resnet18_svhn_prl115':
         return torch.hub.load('cestwc/models', 'resnet18', pretrained=model_name)
 
