@@ -6,92 +6,166 @@ Model outputs are usually logits, but sometimes it could be in huggingface Model
 
 import torch
 
-from .nets import ConvNet, CNN7, ResNet18, ResNet50
-from .convmed import ConvMed, ConvMedBig
-from .wide_resnet_bn import wide_resnet_8
-
-from forward import LambdaNet, forward_with_cifar10_transform, forward_with_sampling, forward_with_certification
+from forward import LambdaNet, forward_with_cifar10_transform, forward_with_sampling, forward_with_certified
 from sampling import sample_uniform_linf_with_soft_clamp
 
 
 def load_model(model_name):
-    if model_name == 'convnet_mnist':
-        return ConvNet()
+    if model_name == 'mnistcnn':
+        return torch.hub.load('cestwc/models', 'convnet_mnist')
+    elif model_name == 'mnistcnn_mnist_dataaug':
+        return torch.hub.load('cestwc/models', 'mnistcnn', pretrained=model_name)
+    
+    elif model_name == 'cnn7':
+        return torch.hub.load('cestwc/models', 'cnn7')
+    elif model_name == 'cnn7_mnist_shi_70':
+        return torch.hub.load('cestwc/models', 'cnn7', pretrained=model_name, in_ch=1, in_dim=28)
 
-    elif model_name.startswith('convnet_mnist_'):
-        model = ConvNet()
-        model.load_state_dict(torch.load('pretrained/' + model_name + '.pt'))
-        return model
 
-    elif model_name == 'resnet18_cifar10' or model_name == 'resnet18_svhn':
-        return ResNet18()
+    elif model_name == 'resnet18_cifar10_trades_100':
+        return torch.hub.load('cestwc/models', 'resnet18', pretrained=model_name)
 
-    elif model_name.startswith('resnet18_'):
-        model = ResNet18()
-        model.load_state_dict(torch.load('pretrained/' + model_name + '.pt'))
-        return model
+    elif model_name == 'cifarresnet110_cifar10_rs012':
+        return torch.hub.load('cestwc/models', 'cifarresnet110', pretrained=model_name)
 
-    elif model_name == 'cnn7_svhn' or model_name == 'cnn7_cifar10':
-        return CNN7(3, 32)
+    elif model_name == 'wideresnet8_cifar10_shi_70':
+        return torch.hub.load('cestwc/models', 'wideresnet8', pretrained=model_name)
 
-    elif model_name == 'cnn7_mnist':
-        return CNN7(1, 28)
+    elif model_name == 'mnistcnn_mnist_trades':
+        return torch.hub.load('cestwc/models', 'mnistcnn', pretrained=model_name)
 
-    elif model_name.startswith('cnn7_cifar10_'):
-        model = LambdaNet(CNN7(3, 32), forward_with_cifar10_transform)
-        model.net.load_state_dict(torch.load('pretrained/' + model_name + '.pt'))
-        return model
+    elif model_name == 'cnn7_cifar10_shi_160':
+        return torch.hub.load('cestwc/models', 'cnn7', pretrained=model_name)
 
-    elif model_name == 'wide_resnet_8':
-        return wide_resnet_8()
+    elif model_name == 'mnistcnn_mnist_trades_220':
+        return torch.hub.load('cestwc/models', 'mnistcnn', pretrained=model_name)
 
-    elif model_name.startswith('wide_resnet_8_cifar10_'):
-        model = LambdaNet(wide_resnet_8(), forward_with_cifar10_transform)
-        model.net.load_state_dict(torch.load('pretrained/' + model_name + '.pt'))
-        return model
+    elif model_name == 'mnistcnn_mnist_prl':
+        return torch.hub.load('cestwc/models', 'mnistcnn', pretrained=model_name)
 
-    elif model_name == 'convmed_cifar10':
-        return ConvMed()
+    elif model_name == 'mnistcnn_mnist_randsmoothing':
+        return torch.hub.load('cestwc/models', 'mnistcnn', pretrained=model_name)
 
-    elif model_name.startswith('convmed_cifar10_'):
-        model = ConvMed()
-        model.load_state_dict(torch.load('pretrained/' + model_name + '.pt'))
-        return model
+    elif model_name == 'convmedbig_cifar10_colt_2_2_4_250':
+        return torch.hub.load('cestwc/models', 'convmedbig', pretrained=model_name, width1=2, width2=2, width3=4, linear_size=250)
 
-    elif model_name == 'convmed_mnist':
-        return ConvMed(dataset='mnist', input_size=28, input_channel=1)
+    elif model_name == 'resnet18_svhn_randsmoothing':
+        return torch.hub.load('cestwc/models', 'resnet18', pretrained=model_name)
+
+    elif model_name == 'cnn7_cifar10_sabr2':
+        return torch.hub.load('cestwc/models', 'cnn7', pretrained=model_name)
+
+    elif model_name == 'cifarresnet110_cifar10_rs025':
+        return torch.hub.load('cestwc/models', 'cifarresnet110', pretrained=model_name)
+
+    elif model_name == 'resnet18_cifar10_mart':
+        return torch.hub.load('cestwc/models', 'resnet18', pretrained=model_name)
+
+    elif model_name == 'convmed_cifar10_colt_2_4_250':
+        return torch.hub.load('cestwc/models', 'convmed', pretrained=model_name)
+
+    elif model_name == 'resnet18_cifar10_prl':
+        return torch.hub.load('cestwc/models', 'resnet18', pretrained=model_name)
+
+    elif model_name == 'resnet18_svhn_trades':
+        return torch.hub.load('cestwc/models', 'resnet18', pretrained=model_name)
 
     elif model_name == 'convmed_mnist_colt_2_4_250':
-        model = ConvMed(dataset='mnist', input_size=28, input_channel=1)
-        model.load_state_dict(torch.load('pretrained/' + model_name + '.pt'))
-        return model
+        return torch.hub.load('cestwc/models', 'convmed', pretrained=model_name)
+
+    elif model_name == 'mnistcnn_mnist_var_268':
+        return torch.hub.load('cestwc/models', 'mnistcnn', pretrained=model_name)
+
+    elif model_name == 'resnet18_svhn_trades_158':
+        return torch.hub.load('cestwc/models', 'resnet18', pretrained=model_name)
+
+    elif model_name == 'mnistcnn_trades':
+        return torch.hub.load('cestwc/models', 'mnistcnn', pretrained=model_name)
+
+    elif model_name == 'resnet18_cifar10_trades':
+        return torch.hub.load('cestwc/models', 'resnet18', pretrained=model_name)
 
     elif model_name == 'convmed_mnist_colt_2_2_100':
-        model = ConvMed(dataset='mnist', input_size=28, input_channel=1, width1=2, width2=2, linear_size=100)
-        model.load_state_dict(torch.load('pretrained/' + model_name + '.pt'))
-        return model
+        return torch.hub.load('cestwc/models', 'convmed', pretrained=model_name, width2=2, linear_size=100)
 
-    elif model_name == 'cifarresnet110':
-        import pytorchcv.model_provider
-        return pytorchcv.model_provider.get_model(f"resnet110_cifar10", pretrained=False)
+    elif model_name == 'mnistcnn_mnist_var_268_2':
+        return torch.hub.load('cestwc/models', 'mnistcnn', pretrained=model_name)
 
-    elif model_name == 'cifarresnet110_cifar10':
-        import pytorchcv.model_provider
-        return pytorchcv.model_provider.get_model(f"resnet110_cifar10", pretrained=True)
+    elif model_name == 'resnet18_svhn_trades_005':
+        return torch.hub.load('cestwc/models', 'resnet18', pretrained=model_name)
 
-    elif model_name.startswith('cifarresnet110_cifar10_'):
-        import pytorchcv.model_provider
-        model = pytorchcv.model_provider.get_model(f"resnet110_cifar10", pretrained=False)
-        model.load_state_dict(torch.load('pretrained/' + model_name + '.pt'))
-        return model
+    elif model_name == 'cnn7_cifar10_shi_70':
+        return torch.hub.load('cestwc/models', 'cnn7', pretrained=model_name)
 
-    elif model_name == 'cifarwrn28_10_cifar100':
-        import pytorchcv.model_provider
-        return pytorchcv.model_provider.get_model(f"wrn28_10_cifar100", pretrained=False)
+    elif model_name == 'resnet18_cifar10_var_035':
+        return torch.hub.load('cestwc/models', 'resnet18', pretrained=model_name)
 
-    elif model_name == 'cifarwrn16_10_cifar100':
-        import pytorchcv.model_provider
-        return pytorchcv.model_provider.get_model(f"wrn16_10_cifar100", pretrained=False)
+    elif model_name == 'resnet18_cifar10_randsmoothing':
+        return torch.hub.load('cestwc/models', 'resnet18', pretrained=model_name)
+
+    elif model_name == 'resnet18_cifar10_rand_669':
+        return torch.hub.load('cestwc/models', 'resnet18', pretrained=model_name)
+
+    elif model_name == 'resnet18_svhn_erm':
+        return torch.hub.load('cestwc/models', 'resnet18', pretrained=model_name)
+
+    elif model_name == 'resnet18_cifar10_dataaug':
+        return torch.hub.load('cestwc/models', 'resnet18', pretrained=model_name)
+
+    elif model_name == 'mnistcnn_randsmoothing':
+        return torch.hub.load('cestwc/models', 'mnistcnn', pretrained=model_name)
+
+    elif model_name == 'wideresnet8_cifar10_shi_160':
+        return torch.hub.load('cestwc/models', 'wideresnet8', pretrained=model_name, num_classes = 10)
+
+    elif model_name == 'resnet18_cifar10_var_1000':
+        return torch.hub.load('cestwc/models', 'resnet18', pretrained=model_name)
+
+    elif model_name == 'resnet18_svhn_dataaug':
+        return torch.hub.load('cestwc/models', 'resnet18', pretrained=model_name)
+
+    elif model_name == 'mnistcnn_mnist_var_269':
+        return torch.hub.load('cestwc/models', 'mnistcnn', pretrained=model_name)
+
+    elif model_name == 'resnet18_cifar10_erm9447':
+        return torch.hub.load('cestwc/models', 'resnet18', pretrained=model_name)
+
+    elif model_name == 'cnn7_cifar10_sabr8':
+        return torch.hub.load('cestwc/models', 'cnn7', pretrained=model_name)
+
+    elif model_name == 'mnistcnn_mnist_erm':
+        return torch.hub.load('cestwc/models', 'mnistcnn', pretrained=model_name)
+
+    elif model_name == 'resnet18_cifar10_var_126':
+        return torch.hub.load('cestwc/models', 'resnet18', pretrained=model_name)
+
+    elif model_name == 'cnn7_mnist_sabr01':
+        return torch.hub.load('cestwc/models', 'cnn7', pretrained=model_name, in_ch=1, in_dim=28)
+
+    elif model_name == 'resnet18_cifar10_var':
+        return torch.hub.load('cestwc/models', 'resnet18', pretrained=model_name)
+
+    elif model_name == 'resnet18_svhn_var':
+        return torch.hub.load('cestwc/models', 'resnet18', pretrained=model_name)
+
+    elif model_name == 'mnistcnn_mnist_trades_085':
+        return torch.hub.load('cestwc/models', 'mnistcnn', pretrained=model_name)
+
+    elif model_name == 'cnn7_mnist_sabr03':
+        return torch.hub.load('cestwc/models', 'cnn7', pretrained=model_name, in_ch=1, in_dim=28)
+
+    elif model_name == 'mnistcnn_mnist_var':
+        return torch.hub.load('cestwc/models', 'mnistcnn', pretrained=model_name)
+
+    elif model_name == 'resnet18_cifar10_erm':
+        return torch.hub.load('cestwc/models', 'resnet18', pretrained=model_name)
+
+    elif model_name == 'resnet18_svhn_erm_2':
+        return torch.hub.load('cestwc/models', 'resnet18', pretrained=model_name)
+        
+    elif model_name == 'resnet18_svhn_prl115':
+        return torch.hub.load('cestwc/models', 'resnet18', pretrained=model_name)
+
 
 
     elif model_name.startswith('sample_4_linf_'):
@@ -103,7 +177,7 @@ def load_model(model_name):
 
     elif model_name.startswith('certify_linf_'):
         model = load_model(model_name.replace('certify_linf_', ''))
-        return LambdaNet(model, forward_with_certification, alpha = 1e-2, mu = 5e-2, pop=2048, sample_ = sample_uniform_linf_with_soft_clamp, eps = 8/255)
+        return LambdaNet(model, forward_with_certified, alpha = 1e-2, mu = 5e-2, pop=2048, sample_ = sample_uniform_linf_with_soft_clamp, eps = 8/255)
 
     else:
         assert False

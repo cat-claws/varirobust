@@ -31,7 +31,7 @@ def forward_with_sampling(net, x, microbatch_size, sample_, **kw):
 	xs = sample_(x, **kw)
 	return forward_samples(net, xs, microbatch_size)
 
-def forward_with_certification(net, x, alpha, mu, pop, sample_, **kw):
+def forward_with_certified(net, x, alpha, mu, pop, sample_, **kw):
 
 	func = lambda k, n: bool(binomtest(k, n, p=mu, alternative='two-sided').pvalue < 2 * alpha)
 
