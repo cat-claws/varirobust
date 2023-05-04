@@ -7,3 +7,4 @@ runs*/*
 demo/runs/*
 checkpoints_/*
 demo/*
+pretrained/*
