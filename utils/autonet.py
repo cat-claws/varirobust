@@ -29,7 +29,7 @@ def load_model(model_name):
         return torch.hub.load('cestwc/models', 'cifarresnet110', pretrained=model_name)
 
     elif model_name == 'wideresnet8_cifar10_shi_70':
-        return torch.hub.load('cestwc/models', 'wide_resnet_8', pretrained=model_name)
+        return torch.hub.load('cestwc/models', 'wide_resnet_8', pretrained=model_name, num_classes = 10)
 
     elif model_name == 'mnistcnn_mnist_trades':
         return torch.hub.load('cestwc/models', 'mnistcnn', pretrained=model_name)
@@ -47,7 +47,7 @@ def load_model(model_name):
         return torch.hub.load('cestwc/models', 'mnistcnn', pretrained=model_name)
 
     elif model_name == 'convmedbig_cifar10_colt_2_2_4_250':
-        return torch.hub.load('cestwc/models', 'convmedbig', pretrained=model_name, width1=2, width2=2, width3=4, linear_size=250)
+        return torch.hub.load('cestwc/models', 'convmedbig', pretrained=model_name, width1=2, width2=2, width3=4, linear_size=250, dataset = 'CIFAR10', device = 'cuda' if torch.cuda.is_available() else 'cpu')
 
     elif model_name == 'resnet18_svhn_randsmoothing':
         return torch.hub.load('cestwc/models', 'resnet18', pretrained=model_name)
@@ -71,7 +71,7 @@ def load_model(model_name):
         return torch.hub.load('cestwc/models', 'resnet18', pretrained=model_name)
 
     elif model_name == 'convmed_mnist_colt_2_4_250':
-        return torch.hub.load('cestwc/models', 'convmed', pretrained=model_name)
+        return torch.hub.load('cestwc/models', 'convmed', pretrained=model_name, dataset = 'MNIST', input_size=28, input_channel=1)
 
     elif model_name == 'mnistcnn_mnist_var_268':
         return torch.hub.load('cestwc/models', 'mnistcnn', pretrained=model_name)
@@ -86,7 +86,7 @@ def load_model(model_name):
         return torch.hub.load('cestwc/models', 'resnet18', pretrained=model_name)
 
     elif model_name == 'convmed_mnist_colt_2_2_100':
-        return torch.hub.load('cestwc/models', 'convmed', pretrained=model_name, width2=2, linear_size=100)
+        return torch.hub.load('cestwc/models', 'convmed', pretrained=model_name, width2=2, linear_size=100, input_size=28, input_channel=1)
 
     elif model_name == 'mnistcnn_mnist_var_268_2':
         return torch.hub.load('cestwc/models', 'mnistcnn', pretrained=model_name)
