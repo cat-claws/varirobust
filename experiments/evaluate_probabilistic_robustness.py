@@ -10,19 +10,19 @@ import torchattacks
 
 import steps
 import sampling
-from utils import nets, datasets, iterate, misc, autonet
+from utils import datasets, iterate, misc, autonet
 
 config = {
-	'dataset':'MNIST',
-	'model_name':'convnet_mnist_erm',
-	'batch_size':16,
-	'eps':77/255,
-	'attack':'BruteForceRandomScale',
+	'dataset':'SVHN',
+	'model_name':'resnet18_cifar10_erm',
+	'batch_size':8,
+	'eps':8/255,
+	'attack':'BruteForceUniform',
 	'attack_config':{
-		'eps':[0.7, 1.3],
+		'eps':8/255,
 		'alpha':1e-2,
 		'mu':1e-2,
-		'pop':2048,
+		'pop':256,
 		'verbose':False
 	},
 	# 'attack':'PGD',
@@ -57,7 +57,8 @@ for k, v in config.items():
 train_loader = torch.utils.data.DataLoader(dataset = train_set, batch_size =  config['batch_size'], num_workers = 2, shuffle = True)
 val_loader = torch.utils.data.DataLoader(dataset = val_set, batch_size =  config['batch_size'], num_workers = 2, shuffle = False)
 
-# for epoch in range(17):
+for epoch in range(226):
+	m.load_state_dict(torch.load(f'pretrained/resnet18_svhn_var_{epoch}.pt'))
 # 	if epoch > 0:
 # 		iterate.train(m,
 # 			train_loader = train_loader,
@@ -78,13 +79,13 @@ val_loader = torch.utils.data.DataLoader(dataset = val_set, batch_size =  config
 # 	torch.save(m.state_dict(), "model_names_/" + writer.log_dir.split('/')[-1] + f"_{epoch:03}.pt")
 
 
-outputs = iterate.attack(m,
-	val_loader = val_loader,
-	epoch = 0,
-	writer = writer,
-	atk = config['attack'],
-	**config
-)
+	outputs = iterate.attack(m,
+		val_loader = val_loader,
+		epoch = epoch,
+		writer = writer,
+		atk = config['attack'],
+		**config
+	)
 
 # print(outputs.keys(), outputs['predictions'])
 writer.flush()

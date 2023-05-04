@@ -166,6 +166,9 @@ def load_model(model_name):
     elif model_name == 'resnet18_svhn_prl115':
         return torch.hub.load('cestwc/models', 'resnet18', pretrained=model_name)
 
+    elif model_name == 'resnet18_svhn_var':
+        return torch.hub.load('cestwc/models', 'resnet18', pretrained=model_name)
+
 
 
     elif model_name.startswith('sample_4_linf_'):
