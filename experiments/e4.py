@@ -10,7 +10,7 @@ import torchattacks
 
 import steps
 import sampling
-from utils import nets, datasets, iterate, misc, autonet
+from utils import datasets, iterate, misc, autonet
 
 config = {
 	'dataset':'CIFAR100',
@@ -28,11 +28,11 @@ config = {
 	},
 	'scheduler':'MultiStepLR',
 	'scheduler_config':{
-		'milestones':[30, 60, 90, 120, 160],
+		'milestones':[80, 120, 160],
 		'gamma':0.1
 	},
 	'sample_':'sample_uniform_linf_with_clamp',
-	'num':100,	
+	'num':30,	
 	'eps':8/255,
 	'attack':'PGD',
 	'attack_config':{
@@ -62,7 +62,7 @@ config = {
 }
 
 train_set, val_set, channel = misc.auto_sets(config['dataset'])
-m = autonet.load_model(config['model_name']).cuda()
+m = torch.hub.load('cestwc/models', 'cifarwrn16_10').cuda()
 
 
 
