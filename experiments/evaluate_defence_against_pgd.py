@@ -17,28 +17,28 @@ config = {
 	'model_name':'resnet18_cifar10_erm',
 	'batch_size':8,
 	'eps':8/255,
-	'attack':'BruteForceUniform',
-	'attack_config':{
-		'eps':8/255,
-		'alpha':1e-2,
-		'mu':1e-2,
-		'pop':256,
-		'verbose':False
-	},
-	# 'attack':'PGD',
+	# 'attack':'BruteForceUniform',
 	# 'attack_config':{
 	# 	'eps':8/255,
-	# 	'alpha':1/255,
-	# 	'steps':20,
-	# 	'random_start':False,
+	# 	'alpha':1e-2,
+	# 	'mu':1e-2,
+	# 	'pop':256,
+	# 	'verbose':False
 	# },
+	'attack':'PGD',
+	'attack_config':{
+		'eps':8/255,
+		'alpha':0.003,
+		'steps':20,
+		'random_start':False,
+	},
 	'device':'cuda',
 	'validation_step':'ordinary_step',
-	# 'attacked_step':'attacked_step',
-	'attacked_step':'binom_step',
+	'attacked_step':'attacked_step',
+	# 'attacked_step':'binom_step',
 }
 
-train_set, val_set, channel = misc.auto_sets(config['dataset'])
+train_set, val_set, _ = misc.auto_sets(config['dataset'])
 
 m = autonet.load_model(config['model_name']).cuda()
 
@@ -57,7 +57,7 @@ for k, v in config.items():
 train_loader = torch.utils.data.DataLoader(dataset = train_set, batch_size =  config['batch_size'], num_workers = 2, shuffle = True)
 val_loader = torch.utils.data.DataLoader(dataset = val_set, batch_size =  config['batch_size'], num_workers = 2, shuffle = False)
 
-for epoch in range(226):
+for epoch in range(504, 716):
 	m.load_state_dict(torch.load(f'pretrained/resnet18_svhn_var_{epoch}.pt'))
 # 	if epoch > 0:
 # 		iterate.train(m,
@@ -68,11 +68,19 @@ for epoch in range(226):
 # 			**config
 # 		)
 
-	iterate.validate(m,
+	# iterate.validate(m,
+	# 	val_loader = val_loader,
+	# 	epoch = epoch,
+	# 	writer = writer,
+	# 	# atk = config['attack'],
+	# 	**config
+	# )
+
+	iterate.attack(m,
 		val_loader = val_loader,
 		epoch = epoch,
 		writer = writer,
-		# atk = config['attack'],
+		atk = config['attack'],
 		**config
 	)
 
