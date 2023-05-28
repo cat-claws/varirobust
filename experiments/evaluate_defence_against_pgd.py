@@ -55,7 +55,10 @@ for k, v in config.items():
 		config[k] = vars(torchattacks)[v](m, **config[k+'_config'])
 		
 train_loader = torch.utils.data.DataLoader(dataset = train_set, batch_size =  config['batch_size'], num_workers = 2, shuffle = True)
-val_loader = torch.utils.data.DataLoader(dataset = val_set, batch_size =  config['batch_size'], num_workers = 2, shuffle = False)
+
+from torch.utils.data import DataLoader, Subset
+sub_val_set = Subset(val_set, range(97))
+val_loader = torch.utils.data.DataLoader(dataset = sub_val_set, batch_size =  config['batch_size'], num_workers = 2, shuffle = False)
 
 for epoch in range(504, 716):
 	m.load_state_dict(torch.load(f'pretrained/resnet18_svhn_var_{epoch}.pt'))
