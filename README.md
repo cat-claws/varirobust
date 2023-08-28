@@ -1,4 +1,4 @@
-# Robustness (Variance Training)
+# Robustness (Variance-minimizing Training)
 This is the official code of paper:<br>
 [Towards Certified Probabilistic Robustness with High Accuracy](https://arxiv.org)<br>
 
